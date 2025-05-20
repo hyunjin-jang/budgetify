@@ -34,7 +34,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <div className="w-sm mx-auto h-screen mt-16">
+          <div className="flex-1">{children}</div>
+        </div>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -45,7 +47,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <>
-      <Navigation />
+      <Navigation
+        isLoggedIn={false}
+        hasNotifications={false}
+        hasMessages={false}
+      />
       <Outlet />
     </>
   );
