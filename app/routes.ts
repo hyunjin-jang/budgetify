@@ -1,13 +1,32 @@
-import { type RouteConfig, index, route } from "@react-router/dev/routes";
+import { type RouteConfig, index, prefix, route } from "@react-router/dev/routes";
 
 export default [
   index("common/pages/home-page.tsx"),
   route("about", "common/pages/about-page.tsx"),
-  route("dashboard", "features/dashboard/pages/dashboard-page.tsx"),
-  route("dashboard/budget", "features/dashboard/pages/budget-page.tsx"),
-  route("dashboard/income", "features/dashboard/pages/income-page.tsx"),
-  route("dashboard/expenses", "features/dashboard/pages/expenses-page.tsx"),
-  route("dashboard/goals", "features/dashboard/pages/goals-page.tsx"),
-  route("auth/join", "features/auth/pages/join-page.tsx"),
-  route("auth/login", "features/auth/pages/login-page.tsx"),
+
+  ...prefix("auth", [
+    route("/join", "features/auth/pages/join-page.tsx"),
+    route("/login", "features/auth/pages/login-page.tsx"),
+  ]),
+
+  ...prefix("budget", [
+    index("features/budget/pages/budget-page.tsx"),
+  ]),
+
+  ...prefix("dashboard", [
+    index("features/dashboard/pages/dashboard-page.tsx"),
+  ]),
+
+  ...prefix("expenses", [
+    index("features/expenses/pages/expenses-page.tsx"),
+  ]),
+
+  ...prefix("goals", [
+    index("features/goals/pages/goals-page.tsx"),
+  ]),
+
+  ...prefix("settings", [
+    index("features/settings/pages/settings-page.tsx"),
+    route("/profile", "features/settings/pages/profile-page.tsx"),
+  ]),
 ] satisfies RouteConfig;

@@ -1,10 +1,17 @@
 import { Button } from "~/common/components/ui/button";
-import { Form, Link } from "react-router";
+import { Form, Link, type MetaFunction } from "react-router";
 import { Input } from "~/common/components/ui/input";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Budgetify 로그인" },
+    { name: "description", content: "Budgetify 로그인" },
+  ];
+};
 
 export default function LoginPage() {
   return (
-    <div className="flex flex-col relative items-center justify-center h-full">
+    <div className="flex flex-col relative items-center justify-center h-full ">
       <div className="flex items-center flex-col justify-center w-full max-w-md gap-10">
         <h1 className="text-2xl font-semibold">로그인</h1>
         <Form className="w-full space-y-4">

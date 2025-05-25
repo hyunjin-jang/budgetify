@@ -31,8 +31,8 @@ import {
 
 const menus = [
   {
-    name: "대시보드",
-    to: "/dashboard",
+    name: "Budgetify에 관하여",
+    to: "/about",
     items: [
       {
         name: "예산 설정 및 내역",
@@ -59,83 +59,6 @@ const menus = [
       },
     ],
   },
-  // {
-  //   name: "Jobs",
-  //   to: "/jobs",
-  //   items: [
-  //     {
-  //       name: "Remote Jobs",
-  //       description: "Find a remote job in our community",
-  //       to: "/jobs?location=remote",
-  //     },
-  //     {
-  //       name: "Full-Time Jobs",
-  //       description: "Find a full-time job in our community",
-  //       to: "/jobs?type=full-time",
-  //     },
-  //     {
-  //       name: "Freelance Jobs",
-  //       description: "Find a freelance job in our community",
-  //       to: "/jobs?type=freelance",
-  //     },
-  //     {
-  //       name: "Internships",
-  //       description: "Find an internship in our community",
-  //       to: "/jobs?type=internship",
-  //     },
-  //     {
-  //       name: "Submit a Job",
-  //       description: "Submit a job to our community",
-  //       to: "/jobs/submit",
-  //     },
-  //   ],
-  // },
-  // {
-  //   name: "Community",
-  //   to: "/community",
-  //   items: [
-  //     {
-  //       name: "All Posts",
-  //       description: "See all posts in our community",
-  //       to: "/community",
-  //     },
-  //     {
-  //       name: "Top Posts",
-  //       description: "See the top posts in our community",
-  //       to: "/community?sort=top",
-  //     },
-  //     {
-  //       name: "New Posts",
-  //       description: "See the new posts in our community",
-  //       to: "/community?sort=new",
-  //     },
-  //     {
-  //       name: "Create a Post",
-  //       description: "Create a post in our community",
-  //       to: "/community/create",
-  //     },
-  //   ],
-  // },
-  // {
-  //   name: "IdeasGPT",
-  //   to: "/ideas",
-  // },
-  // {
-  //   name: "Teams",
-  //   to: "/teams",
-  //   items: [
-  //     {
-  //       name: "All Teams",
-  //       description: "See all teams in our community",
-  //       to: "/teams",
-  //     },
-  //     {
-  //       name: "Create a Team",
-  //       description: "Create a team in our community",
-  //       to: "/teams/create",
-  //     },
-  //   ],
-  // },
 ];
 
 export default function Navigation({
@@ -148,14 +71,19 @@ export default function Navigation({
   hasMessages: boolean;
 }) {
   return (
-    <nav className="flex px-20 h-16 items-center justify-between backdrop-blur fixed top-0 left-0 right-0 z-50 bg-background/50">
+    <nav
+      className="
+      flex px-8 h-16 items-center justify-between backdrop-blur fixed 
+      top-0 left-0 right-0 z-50 bg-background/50 md:px-16
+      "
+    >
       <div className="flex items-center">
         <Link to="/" className="font-bold tracking-tighter text-lg">
-          Budgetify
+          머니도비
         </Link>
         <Separator orientation="vertical" className="h-6 mx-4" />
         <NavigationMenu>
-          <NavigationMenuList>
+          {/* <NavigationMenuList>
             {menus.map((menu) => (
               <NavigationMenuItem key={menu.name}>
                 {menu.items ? (
@@ -201,7 +129,7 @@ export default function Navigation({
                 )}
               </NavigationMenuItem>
             ))}
-          </NavigationMenuList>
+          </NavigationMenuList> */}
         </NavigationMenu>
       </div>
       {isLoggedIn ? (

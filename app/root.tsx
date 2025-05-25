@@ -5,11 +5,16 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 import Navigation from "./common/components/navigation";
+import { Toaster } from "./common/components/ui/sonner";
+import Sidebar from "./common/components/sidebar";
+import { useState } from "react";
+import { Menu } from "lucide-react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -25,6 +30,14 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation(); // 현재 경로 확인
+  const isRoot =
+    location.pathname === "/" ||
+    location.pathname === "/about" ||
+    location.pathname === "/auth/join" ||
+    location.pathname === "/auth/login"; // '/'일 때 true
+
   return (
     <html lang="en" className="dark">
       <head>
@@ -33,10 +46,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
-        <div className="w-sm mx-auto h-screen mt-16">
-          <div className="flex-1">{children}</div>
+      <body className="min-h-screen">
+        <div className="flex min-h-screen">
+          {/* 모바일 햄버거 메뉴 */}
+          {!sidebarOpen && !isRoot && (
+            <div className="absolute top-4 left-4 z-50 md:hidden">
+              <button onClick={() => setSidebarOpen(true)}>
+                <Menu className="w-6 h-6 text-white" />
+              </button>
+            </div>
+          )}
+
+          {/* 사이드바 */}
+          {!isRoot && (
+            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+          )}
+
+          {/* 메인 콘텐츠 */}
+          <main className="flex-1 px-8 py-12 md:px-16">{children}</main>
         </div>
+
+        <Toaster />
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -45,13 +75,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const location = useLocation();
+  const isRoot =
+    location.pathname === "/" ||
+    location.pathname === "/about" ||
+    location.pathname === "/auth/join" ||
+    location.pathname === "/auth/login";
+
   return (
     <>
-      <Navigation
-        isLoggedIn={false}
-        hasNotifications={false}
-        hasMessages={false}
-      />
+      {isRoot && (
+        <Navigation
+          isLoggedIn={false}
+          hasNotifications={false}
+          hasMessages={false}
+        />
+      )}
       <Outlet />
     </>
   );

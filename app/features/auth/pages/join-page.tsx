@@ -1,6 +1,13 @@
 import { Button } from "~/common/components/ui/button";
-import { Form, Link } from "react-router";
+import { Form, Link, type MetaFunction } from "react-router";
 import { Input } from "~/common/components/ui/input";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Budgetify 회원가입" },
+    { name: "description", content: "Budgetify 회원가입" },
+  ];
+};
 
 export default function JoinPage() {
   return (
