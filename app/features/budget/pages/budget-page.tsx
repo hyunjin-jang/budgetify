@@ -4,8 +4,8 @@ import { useState } from "react";
 import type { MetaFunction } from "react-router";
 
 export const meta: MetaFunction = () => [
-  { title: "Budgetify 예산 설정" },
-  { name: "description", content: "Budgetify 예산 설정" },
+  { title: "머니도비 예산 설정" },
+  { name: "description", content: "머니도비 예산 설정" },
 ];
 
 export default function BudgetPage() {

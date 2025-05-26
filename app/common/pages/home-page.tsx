@@ -1,12 +1,11 @@
 import { Link, type MetaFunction } from "react-router";
 import { Button } from "~/common/components/ui/button";
-import { motion } from "framer-motion";
-import { BorderBeam } from "~/common/components/magicui/border-beam";
+import { BorderBeam } from "../components/magicui/border-beam";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Budgetify 홈" },
-    { name: "description", content: "Budgetify 홈" },
+    { title: "머니도비 홈" },
+    { name: "description", content: "머니도비 홈" },
   ];
 };
 
@@ -49,23 +48,13 @@ export default function HomePage() {
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[#0a0a0a] via-[#111] to-[#1a1a1a]" />
 
       <section className="text-center max-w-2xl py-20">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-4xl sm:text-5xl font-bold mb-4 leading-tight"
-        >
+        <h1 className="text-4xl sm:text-5xl font-bold mb-4 leading-tight">
           예산 설정과 소비 관리를 한번에
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-lg text-muted-foreground mb-6"
-        >
+        </h1>
+        <p className="text-lg text-muted-foreground mb-6">
           머니도비는 수입과 지출을 쉽게 기록하고 예산을 설정하여 체계적으로
           소비를 관리할 수 있는 스마트 가계부 앱입니다.
-        </motion.p>
+        </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button size="lg" variant="default" asChild>
             <Link to="/auth/login">시작하기</Link>
