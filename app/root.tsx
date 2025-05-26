@@ -30,7 +30,7 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation(); // 현재 경로 확인
   const isRoot =
     location.pathname === "/" ||
@@ -48,20 +48,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="min-h-screen">
         <div className="flex min-h-screen">
-          {/* 모바일 햄버거 메뉴 */}
-          {!sidebarOpen && !isRoot && (
-            <div className="absolute top-4 left-4 z-50 md:hidden">
-              <button onClick={() => setSidebarOpen(true)}>
-                <Menu className="w-6 h-6 text-white" />
-              </button>
-            </div>
-          )}
-
           {/* 사이드바 */}
-          {!isRoot && (
-            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-          )}
-
+          {!isRoot && <Sidebar isRoot={isRoot} />}
           {/* 메인 콘텐츠 */}
           <main className="flex-1 px-8 py-12 md:px-16">{children}</main>
         </div>

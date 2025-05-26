@@ -9,8 +9,8 @@ import IconButton from "~/common/components/iconButton";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Budgetify 지출 설정" },
-    { name: "description", content: "Budgetify 지출 설정" },
+    { title: "머니도비 지출 설정" },
+    { name: "description", content: "머니도비 지출 설정" },
   ];
 };
 

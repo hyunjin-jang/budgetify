@@ -31,7 +31,7 @@ import {
 
 const menus = [
   {
-    name: "Budgetify에 관하여",
+    name: "머니도비에 대하여",
     to: "/about",
     items: [
       {

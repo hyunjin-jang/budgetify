@@ -2,11 +2,11 @@ import type { MetaFunction } from "react-router";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Budgetify 소개" },
+    { title: "머니도비 소개" },
     {
       name: "description",
       content:
-        "Budgetify는 예산과 지출을 스마트하게 관리할 수 있는 재무관리 앱입니다.",
+        "머니도비는 예산과 지출을 스마트하게 관리할 수 있는 재무관리 앱입니다.",
     },
   ];
 };
@@ -32,12 +32,12 @@ export default function AboutPage() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold">Budgetify란?</h1>
+        <h1 className="text-2xl font-bold">머니도비란?</h1>
         <p>
-          Budgetify는 개인의 월별 예산과 지출을 효율적으로 관리할 수 있도록
-          설계된 스마트 가계부 앱입니다. 수입과 지출을 직관적으로 기록하고,
-          카테고리별로 분석하며, 목표 지출에 맞춰 소비 습관을 개선할 수 있도록
-          도와줍니다.
+          머니도비(MoneyDoby) 개인의 월별 예산과 지출을 효율적으로 관리할 수
+          있도록 설계된 스마트 가계부 앱입니다. 수입과 지출을 직관적으로
+          기록하고, 카테고리별로 분석하며, 목표 지출에 맞춰 소비 습관을 개선할
+          수 있도록 도와줍니다.
         </p>
       </div>
       <div className="flex flex-col gap-2">
@@ -51,9 +51,9 @@ export default function AboutPage() {
         </ul>
       </div>
       <div className="flex flex-col gap-2">
-        <h2 className="text-xl font-semibold">왜 Budgetify인가요?</h2>
+        <h2 className="text-xl font-semibold">왜 머니도비(MoneyDoby)인가요?</h2>
         <p>
-          기존의 복잡한 가계부 앱들과 달리 Budgetify는 사용자 중심의 간결한 UI와
+          기존의 복잡한 가계부 앱들과 달리 머니도비는 사용자 중심의 간결한 UI와
           직관적인 흐름을 제공합니다. 소비 습관을 시각화하고 목표 중심으로
           관리함으로써, 사용자의 재정 건강을 실질적으로 향상시킬 수 있도록
           설계되었습니다.
