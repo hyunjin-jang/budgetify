@@ -15,8 +15,8 @@ import IconButton from "~/common/components/iconButton";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Budgetify 대시보드" },
-    { name: "description", content: "Budgetify 대시보드" },
+    { title: "머니도비 대시보드" },
+    { name: "description", content: "머니도비 대시보드" },
   ];
 };
 
@@ -51,7 +51,7 @@ export default function DashboardPage() {
   ];
   const expensesByDate: Record<string, { category: string; amount: number }[]> =
     {
-      "2025-05-22": [
+      "2025-05-02": [
         { category: "식비", amount: 120000 },
         { category: "교통", amount: 3000 },
         { category: "식비", amount: 120000 },
@@ -83,7 +83,7 @@ export default function DashboardPage() {
         { category: "식비", amount: 120000 },
         { category: "교통", amount: 3000 },
       ],
-      "2025-05-23": [{ category: "카페", amount: 4500 }],
+      "2025-05-06": [{ category: "카페", amount: 4500 }],
     };
 
   const totalThisMonth = useMemo(() => {

@@ -8,85 +8,42 @@ type MenuItem = {
   items?: { name: string; to: string }[];
 };
 
-export default function Sidebar({
-  isOpen,
-  setIsOpen,
-}: {
-  isOpen: boolean;
-  setIsOpen: (v: boolean) => void;
-}) {
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
+const menus: MenuItem[] = [
+  {
+    name: "대시보드",
+    to: "/dashboard",
+  },
+  {
+    name: "예산",
+    to: "/budget",
+  },
+  {
+    name: "지출",
+    to: "/expenses",
+  },
+  {
+    name: "목표",
+    to: "/goals",
+  },
+  {
+    name: "설정",
+    to: "/settings",
+    items: [
+      {
+        name: "프로필 설정",
+        to: "/settings/profile",
+      },
+    ],
+  },
+  {
+    name: "로그아웃",
+    to: "auth/logout",
+  },
+];
 
-  const menus: MenuItem[] = [
-    {
-      name: "대시보드",
-      to: "/dashboard",
-    },
-    {
-      name: "예산",
-      to: "/budget",
-      // items: [
-      //   {
-      //     name: "예산 내역",
-      //     to: "/budget/history",
-      //   },
-      //   {
-      //     name: "예산 설정",
-      //     to: "/budget/settings",
-      //   },
-      // ],
-    },
-    {
-      name: "지출",
-      to: "/expenses",
-      // items: [
-      //   {
-      //     name: "지출 내역",
-      //     to: "/expenses/history",
-      //   },
-      //   {
-      //     name: "지출 설정",
-      //     to: "/expenses/settings",
-      //   },
-      // ],
-    },
-    {
-      name: "목표",
-      to: "/goals",
-      // items: [
-      //   {
-      //     name: "목표 내역",
-      //     to: "/goals/history",
-      //   },
-      //   {
-      //     name: "목표 설정",
-      //     to: "/goals/settings",
-      //   },
-      // ],
-    },
-    {
-      name: "설정",
-      to: "/settings",
-      items: [
-        {
-          name: "프로필 설정",
-          to: "/settings/profile",
-        },
-        // {
-        //   name: "알림 설정",
-        //   to: "/settings/notifications",
-        // },
-        // {
-        //   name: "계정 설정",
-        //   to: "/settings/account",
-        // },
-      ],
-    },
-    {
-      name: "로그아웃",
-      to: "auth/logout",
-    },
-  ];
+export default function Sidebar({ isRoot }: { isRoot: boolean }) {
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = (name: string) => {
     setOpenMenu(openMenu === name ? null : name);
@@ -94,6 +51,14 @@ export default function Sidebar({
 
   return (
     <>
+      {/* 모바일 햄버거 메뉴 */}
+      {!isOpen && !isRoot && (
+        <div className="absolute top-4 left-4 z-50 md:hidden">
+          <button onClick={() => setIsOpen(true)}>
+            <Menu className="w-6 h-6 text-white" />
+          </button>
+        </div>
+      )}
       {/* 사이드바 */}
       <div
         className={`
@@ -106,7 +71,7 @@ export default function Sidebar({
         `}
       >
         <nav className="p-4 flex flex-col gap-2 border-r min-h-full">
-          <Link to="/" className="text-white text-2xl font-bold mb-4">
+          <Link to="/dashboard" className="text-white text-2xl font-bold mb-4">
             머니도비
           </Link>
 

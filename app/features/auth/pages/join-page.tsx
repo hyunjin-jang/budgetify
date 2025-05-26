@@ -4,8 +4,8 @@ import { Input } from "~/common/components/ui/input";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Budgetify 회원가입" },
-    { name: "description", content: "Budgetify 회원가입" },
+    { title: "머니도비 회원가입" },
+    { name: "description", content: "머니도비 회원가입" },
   ];
 };
 
