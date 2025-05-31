@@ -1,48 +1,49 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ExpenseSetting } from "../components/ExpenseSetting";
 import { Button } from "~/common/components/ui/button";
 import type { MetaFunction } from "react-router";
 import { format, addMonths, subMonths } from "date-fns";
 import { ko } from "date-fns/locale";
-import { TrashIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import IconButton from "~/common/components/iconButton";
+import { getExpenseCategories, getExpenses } from "../queries";
+import type { Route } from "./+types/expenses-page";
+import { ExpenseCard } from "../components/ExpenseCard";
 
 export const meta: MetaFunction = () => {
-  return [
-    { title: "머니도비 지출 설정" },
-    { name: "description", content: "머니도비 지출 설정" },
-  ];
+  return [{ title: "머니도비 지출 설정" }];
 };
 
-export default function ExpensesPage() {
+export const loader = async () => {
+  const expenses = await getExpenses("376adda7-64d1-4eb0-a962-2465dbc9f2cb");
+  const categories = await getExpenseCategories(
+    "376adda7-64d1-4eb0-a962-2465dbc9f2cb"
+  );
+  return { expenses, categories };
+};
+
+type Expense = {
+  title: string;
+  amount: number;
+  date: string;
+  category: {
+    id: string;
+    name: string;
+  } | null;
+};
+
+export default function ExpensesPage({ loaderData }: Route.ComponentProps) {
   const [isExpenseSetting, setIsExpenseSetting] = useState(false);
-  const [expenseList, setExpenseList] = useState<Record<string, string>[]>([]);
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
 
-  useEffect(() => {
-    const stored = localStorage.getItem("expenseList");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      parsed.sort(
-        (a: Record<string, string>, b: Record<string, string>) =>
-          new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-      setExpenseList(parsed);
-    }
-  }, []);
+  const handleDeleteExpense = () => {};
 
-  const handleDeleteExpense = (targetIndex: number) => {
-    const newList = expenseList.filter((_, idx) => idx !== targetIndex);
-    setExpenseList(newList);
-    localStorage.setItem("expenseList", JSON.stringify(newList));
-  };
-
-  const groupedByMonth = expenseList.reduce((acc, expense) => {
+  const groupedByMonth = loaderData.expenses.reduce((acc, expense) => {
     const monthKey = format(new Date(expense.date), "yyyy년 M월");
     if (!acc[monthKey]) acc[monthKey] = [];
     acc[monthKey].push(expense);
     return acc;
-  }, {} as Record<string, Record<string, string>[]>);
+  }, {} as Record<string, Expense[]>);
 
   const selectedMonthKey = format(selectedMonth, "yyyy년 M월");
   const selectedExpenses = groupedByMonth[selectedMonthKey] || [];
@@ -54,7 +55,7 @@ export default function ExpensesPage() {
     if (!acc[dateKey]) acc[dateKey] = [];
     acc[dateKey].push(expense);
     return acc;
-  }, {} as Record<string, Record<string, string>[]>);
+  }, {} as Record<string, Expense[]>);
 
   const total = selectedExpenses.reduce(
     (sum, e) => sum + Number(e.amount || 0),
@@ -112,40 +113,22 @@ export default function ExpensesPage() {
                         {date}
                       </h3>
                       {expenses.map((expense, idx) => {
-                        const realIdx = expenseList.findIndex(
+                        const realIdx = loaderData.expenses.findIndex(
                           (e) =>
                             e.date === expense.date &&
                             e.amount === expense.amount &&
                             e.category === expense.category &&
-                            e.description === expense.description &&
-                            expenseList.indexOf(e) >= offset
+                            e.title === expense.title &&
+                            loaderData.expenses.indexOf(e) >= offset
                         );
                         offset = realIdx + 1;
 
                         return (
-                          <div
-                            key={`${expense.date}-${expense.description}-${idx}`}
-                            className="flex justify-between items-start rounded-lg border p-4 bg-card"
-                          >
-                            <div className="flex flex-col w-full">
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs font-medium mb-1 text-primary">
-                                  {expense.category}
-                                </span>
-                                <IconButton
-                                  onClick={() => handleDeleteExpense(realIdx)}
-                                >
-                                  <TrashIcon className="w-4 h-4 text-destructive" />
-                                </IconButton>
-                              </div>
-                              <span className="text-sm font-semibold">
-                                {Number(expense.amount).toLocaleString()}원
-                              </span>
-                              <span className="text-sm text-muted-foreground">
-                                {expense.description}
-                              </span>
-                            </div>
-                          </div>
+                          <ExpenseCard
+                            expense={expense}
+                            realIdx={realIdx}
+                            idx={idx}
+                          />
                         );
                       })}
                     </div>
@@ -159,8 +142,6 @@ export default function ExpensesPage() {
       <ExpenseSetting
         isExpenseSetting={isExpenseSetting}
         onOpenChange={() => setIsExpenseSetting(false)}
-        expenseList={expenseList}
-        setExpenseList={setExpenseList}
       />
     </>
   );

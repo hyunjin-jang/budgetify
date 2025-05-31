@@ -23,8 +23,6 @@ import { cn } from "~/lib/utils";
 type Props = {
   isExpenseSetting: boolean;
   onOpenChange: () => void;
-  expenseList: Record<string, string>[];
-  setExpenseList: (expenseList: Record<string, string>[]) => void;
 };
 
 const defaultCategories = [
@@ -38,9 +36,9 @@ const defaultCategories = [
 export function ExpenseSetting({
   isExpenseSetting,
   onOpenChange,
-  expenseList,
-  setExpenseList,
-}: Props) {
+}: // expenseList,
+// setExpenseList,
+Props) {
   const [categories, setCategories] = useState(defaultCategories);
   const [category, setCategory] = useState<string>("");
   const [newCategory, setNewCategory] = useState<string>("");
@@ -59,7 +57,7 @@ export function ExpenseSetting({
       description,
     };
 
-    setExpenseList([expense, ...expenseList]);
+    // setExpenseList([expense, ...expenseList]);
 
     const storageExpenseList = localStorage.getItem("expenseList");
     const newList = storageExpenseList
