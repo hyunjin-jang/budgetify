@@ -3,7 +3,7 @@ import client from "~/supa-client";
 export const getExpenses = async (userId: string) => {
   const { data, error } = await client
     .from("expenses")
-    .select("title, amount, category, date")
+    .select("title, amount, date, category(id, name)")
     .eq("user_id", userId)
     .order("date", { ascending: false });
   if (error) {

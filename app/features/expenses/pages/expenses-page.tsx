@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ExpenseSetting } from "../components/ExpenseSetting";
 import { Button } from "~/common/components/ui/button";
 import type { MetaFunction } from "react-router";
 import { format, addMonths, subMonths } from "date-fns";
 import { ko } from "date-fns/locale";
-import { TrashIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import IconButton from "~/common/components/iconButton";
 import { getExpenseCategories, getExpenses } from "../queries";
 import type { Route } from "./+types/expenses-page";
@@ -25,29 +25,18 @@ export const loader = async () => {
 type Expense = {
   title: string;
   amount: number;
-  category: string | null;
   date: string;
-};
-
-type Category = {
-  name: string;
+  category: {
+    id: string;
+    name: string;
+  } | null;
 };
 
 export default function ExpensesPage({ loaderData }: Route.ComponentProps) {
   const [isExpenseSetting, setIsExpenseSetting] = useState(false);
-  // const [expenseList, setExpenseList] = useState<Expense[]>(() => {
-  //   const expenses = loaderData.expenses ?? [];
-  //   return [...expenses].sort(
-  //     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  //   );
-  // });
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
 
-  const handleDeleteExpense = (targetIndex: number) => {
-    // const newList = expenseList.filter((_, idx) => idx !== targetIndex);
-    // setExpenseList(newList);
-    // localStorage.setItem("expenseList", JSON.stringify(newList));
-  };
+  const handleDeleteExpense = () => {};
 
   const groupedByMonth = loaderData.expenses.reduce((acc, expense) => {
     const monthKey = format(new Date(expense.date), "yyyy년 M월");
@@ -137,7 +126,6 @@ export default function ExpensesPage({ loaderData }: Route.ComponentProps) {
                         return (
                           <ExpenseCard
                             expense={expense}
-                            categories={loaderData.categories}
                             realIdx={realIdx}
                             idx={idx}
                           />
