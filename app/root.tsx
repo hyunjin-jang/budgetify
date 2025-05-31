@@ -47,7 +47,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="min-h-screen">
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen overflow-hidden">
+          {/* 네비게이션 */}
+          {isRoot && (
+            <Navigation
+              isLoggedIn={false}
+              hasNotifications={false}
+              hasMessages={false}
+            />
+          )}
           {/* 사이드바 */}
           {!isRoot && <Sidebar isRoot={isRoot} />}
           {/* 메인 콘텐츠 */}
@@ -63,22 +71,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const location = useLocation();
-  const isRoot =
-    location.pathname === "/" ||
-    location.pathname === "/about" ||
-    location.pathname === "/auth/join" ||
-    location.pathname === "/auth/login";
-
   return (
     <>
-      {isRoot && (
-        <Navigation
-          isLoggedIn={false}
-          hasNotifications={false}
-          hasMessages={false}
-        />
-      )}
       <Outlet />
     </>
   );

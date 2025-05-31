@@ -20,21 +20,19 @@ type Goal = {
   id: string;
   title: string;
   amount: number;
-  startDate: string;
-  endDate: string;
-  status?: "completed" | "failed";
+  start_date: string;
+  end_date: string;
+  status: "scheduled" | "in_progress" | "completed" | "failed";
 };
 
 export function GoalSetting({
   open,
   onClose,
-  goals,
-  setGoals,
+  goal,
 }: {
   open: boolean;
   onClose: () => void;
-  goals: Goal[];
-  setGoals: (goals: Goal[]) => void;
+  goal: Goal;
 }) {
   const [startCalendarOpen, setStartCalendarOpen] = useState(false);
   const [endCalendarOpen, setEndCalendarOpen] = useState(false);
@@ -51,16 +49,6 @@ export function GoalSetting({
       return;
     }
 
-    const newGoal: Goal = {
-      id: uuidv4(),
-      title,
-      amount: Number(amount),
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      status: undefined,
-    };
-
-    setGoals([...goals, newGoal]);
     onClose();
     setTitle("");
     setAmount("");
