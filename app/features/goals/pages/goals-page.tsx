@@ -2,20 +2,18 @@ import { useState } from "react";
 import { Button } from "~/common/components/ui/button";
 import { GoalSetting } from "../components/GoalSetting";
 import type { MetaFunction } from "react-router";
-import { format } from "date-fns";
-import { cn } from "~/lib/utils";
-import { TrashIcon } from "lucide-react"; // ❗️삭제 아이콘 추가
-import IconButton from "~/common/components/iconButton";
 import { getGoals } from "../queries";
 import type { Route } from "./+types/goals-page";
 import { GoalCard } from "../components/GoalCard";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: MetaFunction = () => {
   return [{ title: "머니도비 적합 규모 구성" }];
 };
 
-export const loader = async () => {
-  const goals = await getGoals("376adda7-64d1-4eb0-a962-2465dbc9f2cb");
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const { client, headers } = makeSSRClient(request);
+  const goals = await getGoals(client, "376adda7-64d1-4eb0-a962-2465dbc9f2cb");
   return { goals };
 };
 

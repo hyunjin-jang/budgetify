@@ -7,6 +7,7 @@ export default [
   ...prefix("auth", [
     route("/join", "features/auth/pages/join-page.tsx"),
     route("/login", "features/auth/pages/login-page.tsx"),
+    route("/logout", "features/auth/pages/logout-page.tsx"),
   ]),
 
   ...prefix("budget", [

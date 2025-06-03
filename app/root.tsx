@@ -13,8 +13,8 @@ import "./app.css";
 import Navigation from "./common/components/navigation";
 import { Toaster } from "./common/components/ui/sonner";
 import Sidebar from "./common/components/sidebar";
-import { useState } from "react";
-import { Menu } from "lucide-react";
+import { makeSSRClient } from "./supa-client";
+import { getUserById } from "./features/settings/queries";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -30,13 +30,12 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  // const [sidebarOpen, setSidebarOpen] = useState(false);
-  const location = useLocation(); // 현재 경로 확인
+  const location = useLocation();
   const isRoot =
     location.pathname === "/" ||
     location.pathname === "/about" ||
     location.pathname === "/auth/join" ||
-    location.pathname === "/auth/login"; // '/'일 때 true
+    location.pathname === "/auth/login";
 
   return (
     <html lang="en" className="dark">
@@ -47,22 +46,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="min-h-screen">
-        <div className="flex min-h-screen overflow-hidden">
-          {/* 네비게이션 */}
-          {isRoot && (
-            <Navigation
-              isLoggedIn={false}
-              hasNotifications={false}
-              hasMessages={false}
-            />
-          )}
-          {/* 사이드바 */}
-          {!isRoot && <Sidebar isRoot={isRoot} />}
+        <div className="flex min-h-screen">
           {/* 메인 콘텐츠 */}
-          <main className="flex-1 px-8 py-12 md:px-16">{children}</main>
+          <main
+            className={`flex-1 px-8 py-24 md:px-16 ${
+              !isRoot ? "md:ml-64" : ""
+            }`}
+          >
+            {children}
+          </main>
         </div>
 
-        <Toaster />
+        <Toaster position="bottom-right" />
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -70,9 +65,39 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const { client } = await makeSSRClient(request);
+  const {
+    data: { user },
+  } = await client.auth.getUser();
+  if (user) {
+    const profile = await getUserById(client, { id: user.id });
+    return { user, profile };
+  }
+  return { user: null, profile: null };
+};
+
+export default function App({ loaderData }: Route.ComponentProps) {
+  const isLoggedIn = loaderData.user !== null;
+  const location = useLocation();
+  const isRoot =
+    location.pathname === "/" ||
+    location.pathname === "/about" ||
+    location.pathname === "/auth/join" ||
+    location.pathname === "/auth/login";
+
   return (
     <>
+      {/* 네비게이션 */}
+      <Navigation
+        isRoot={isRoot}
+        isLoggedIn={isLoggedIn}
+        hasNotifications={false}
+        hasMessages={false}
+      />
+
+      {/* 사이드바 */}
+      {!isRoot && <Sidebar isRoot={isRoot} />}
       <Outlet />
     </>
   );
