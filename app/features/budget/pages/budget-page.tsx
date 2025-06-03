@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { MetaFunction } from "react-router";
 import { getBudget, getBudgetAllocations, getFixedExpenses } from "../queries";
 import type { Route } from "./+types/budget-page";
+import { makeSSRClient } from "~/supa-client";
 
 type Budget = {
   id: string;
@@ -16,15 +17,21 @@ type Budget = {
 
 export const meta: MetaFunction = () => [{ title: "머니도비 예산 설정" }];
 
-export const loader = async () => {
-  const budgets = await getBudget("376adda7-64d1-4eb0-a962-2465dbc9f2cb");
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const { client, headers } = makeSSRClient(request);
+  const budgets = await getBudget(
+    client,
+    "376adda7-64d1-4eb0-a962-2465dbc9f2cb"
+  );
   const fixedExpenses = await getFixedExpenses(
+    client,
     "f6a7b8c9-d0e1-9f0a-3b2c-4d5e6f7a8b9c"
   );
   const budgetAllocations = await getBudgetAllocations(
+    client,
     "f6a7b8c9-d0e1-9f0a-3b2c-4d5e6f7a8b9c"
   );
-  return { budgets, fixedExpenses, budgetAllocations };
+  return { budgets, fixedExpenses, budgetAllocations, headers };
 };
 
 export default function BudgetPage({ loaderData }: Route.ComponentProps) {
@@ -78,7 +85,7 @@ export default function BudgetPage({ loaderData }: Route.ComponentProps) {
             <h3 className="text-xl font-semibold mb-2">고정 비용</h3>
             <ul className="space-y-1">
               {fixedExpenses.map((expense) => (
-                <li className="flex justify-between">
+                <li key={expense.id} className="flex justify-between">
                   <span className="text-muted-foreground">{expense.title}</span>
                   <span className="font-medium">
                     {expense.amount.toLocaleString()}원
@@ -127,7 +134,7 @@ export default function BudgetPage({ loaderData }: Route.ComponentProps) {
             <div className="space-y-1">
               <ul className="grid grid-cols-2 gap-x-4 gap-y-1">
                 {budgetAllocations.map((allocation) => (
-                  <li className="flex justify-between">
+                  <li key={allocation.id} className="flex justify-between">
                     <span>{allocation.category}</span>
                     <span>{allocation.amount.toLocaleString()}원</span>
                   </li>

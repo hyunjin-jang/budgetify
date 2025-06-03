@@ -9,14 +9,20 @@ import IconButton from "~/common/components/iconButton";
 import { getExpenseCategories, getExpenses } from "../queries";
 import type { Route } from "./+types/expenses-page";
 import { ExpenseCard } from "../components/ExpenseCard";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: MetaFunction = () => {
   return [{ title: "머니도비 지출 설정" }];
 };
 
-export const loader = async () => {
-  const expenses = await getExpenses("376adda7-64d1-4eb0-a962-2465dbc9f2cb");
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const { client, headers } = makeSSRClient(request);
+  const expenses = await getExpenses(
+    client,
+    "376adda7-64d1-4eb0-a962-2465dbc9f2cb"
+  );
   const categories = await getExpenseCategories(
+    client,
     "376adda7-64d1-4eb0-a962-2465dbc9f2cb"
   );
   return { expenses, categories };
@@ -125,6 +131,7 @@ export default function ExpensesPage({ loaderData }: Route.ComponentProps) {
 
                         return (
                           <ExpenseCard
+                            key={idx}
                             expense={expense}
                             realIdx={realIdx}
                             idx={idx}

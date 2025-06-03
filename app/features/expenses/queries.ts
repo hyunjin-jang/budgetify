@@ -1,6 +1,7 @@
-import client from "~/supa-client";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "database.types";
 
-export const getExpenses = async (userId: string) => {
+export const getExpenses = async (client: SupabaseClient<Database>, userId: string) => {
   const { data, error } = await client
     .from("expenses")
     .select("title, amount, date, category(id, name)")
@@ -12,7 +13,7 @@ export const getExpenses = async (userId: string) => {
   return data;
 };
 
-export const getExpenseCategories = async (userId: string) => {
+export const getExpenseCategories = async (client: SupabaseClient<Database>, userId: string) => {
   const { data, error } = await client
     .from("expense_categories")
     .select("id, name")

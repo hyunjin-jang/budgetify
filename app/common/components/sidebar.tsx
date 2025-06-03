@@ -53,8 +53,11 @@ export default function Sidebar({ isRoot }: { isRoot: boolean }) {
     <>
       {/* 모바일 햄버거 메뉴 */}
       {!isOpen && !isRoot && (
-        <div className="absolute top-4 left-4 z-50 md:hidden">
-          <button onClick={() => setIsOpen(true)}>
+        <div className="fixed top-4 left-4 z-50 md:hidden">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="p-2 rounded-md bg-neutral-800 hover:bg-neutral-700"
+          >
             <Menu className="w-6 h-6 text-white" />
           </button>
         </div>
@@ -65,15 +68,24 @@ export default function Sidebar({ isRoot }: { isRoot: boolean }) {
           w-64 bg-neutral-800 shadow-lg transform 
           transition-transform duration-300 ease-in-out 
           ${isOpen ? "translate-x-0" : "-translate-x-full"} 
-          md:translate-x-0 md:relative md:shadow-none md:block
-          h-full md:h-auto
-          fixed md:static z-40 md:z-0
+          md:translate-x-0 md:fixed md:left-0 md:top-0 md:h-screen
+          fixed top-0 left-0 h-screen
+          z-40
         `}
       >
-        <nav className="p-4 flex flex-col gap-2 border-r min-h-full">
-          <Link to="/dashboard" className="text-white text-2xl font-bold mb-4">
-            머니도비
-          </Link>
+        <nav className="p-4 flex flex-col gap-2 border-r h-full">
+          <div className="flex items-center justify-between">
+            <Link to="/dashboard" className="text-white text-2xl font-bold">
+              머니도비
+            </Link>
+            {/* 모바일에서만 보이는 닫기 버튼 */}
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-2 rounded-md hover:bg-neutral-700 md:hidden"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+          </div>
 
           {menus.map((menu) => (
             <div key={menu.name}>

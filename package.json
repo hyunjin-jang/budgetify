@@ -22,6 +22,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@react-router/node": "^7.5.3",
     "@react-router/serve": "^7.5.3",
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -40,8 +41,9 @@
     "recharts": "^2.15.3",
     "sonner": "^2.0.3",
     "tailwind-merge": "^3.3.0",
+    "type-fest": "^4.41.0",
     "uuid": "^11.1.0",
-    "zod": "^3.25.20"
+    "zod": "^3.25.48"
   },
   "devDependencies": {
     "@react-router/dev": "^7.5.3",
