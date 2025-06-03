@@ -1,21 +1,25 @@
-create function public.user_to_profile_trigger()
+create function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer
 set search_path = ''
 as $$
 begin
-  if new.raw_app_meta_data is not null then
-    if new.raw_app_meta_data->>'provider' = 'email' then
-      insert into public.profiles (id, name, username, role) 
-      values (new.id, 'Anonymous', 'mr. ' || substr(md5(random()::text), 1, 8), 'user');
+    if new.raw_app_meta_data is not null then
+        if new.raw_app_meta_data ? 'provider' AND new.raw_app_meta_data ->> 'provider' = 'email' then
+            if new.raw_user_meta_data ? 'name' and new.raw_user_meta_data ? 'username' then
+                insert into public.profiles (id, name, username, role)
+                values (new.id, new.raw_user_meta_data ->> 'name', new.raw_user_meta_data ->> 'username', 'user');
+            else
+                insert into public.profiles (id, name, username, role)
+                values (new.id, 'Anonymous', 'mr.' || substr(md5(random()::text), 1, 8), 'user');
+            end if;
+        end if;
     end if;
-  end if;
-  return new;
+    return new;
 end;
 $$;
 
 create trigger user_to_profile_trigger
 after insert on auth.users
-for each row
-execute function public.user_to_profile_trigger();
+for each row execute function public.handle_new_user();

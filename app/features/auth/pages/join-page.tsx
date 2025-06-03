@@ -1,6 +1,19 @@
 import { Button } from "~/common/components/ui/button";
-import { Form, Link, type MetaFunction } from "react-router";
+import {
+  Form,
+  Link,
+  redirect,
+  useNavigation,
+  type MetaFunction,
+} from "react-router";
 import { Input } from "~/common/components/ui/input";
+import z from "zod";
+import { makeSSRClient } from "~/supa-client";
+import { checkUsernameExists } from "../queries";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import type { Route } from "./+types/join-page";
 
 export const meta: MetaFunction = () => {
   return [
@@ -9,12 +22,88 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export default function JoinPage() {
+const formSchema = z.object({
+  name: z
+    .string({ required_error: "이름을 입력해주세요" })
+    .min(1, "이름을 입력해주세요"),
+  username: z
+    .string({ required_error: "닉네임을 입력해주세요" })
+    .min(1, "닉네임을 입력해주세요"),
+  email: z
+    .string({ required_error: "이메일을 입력해주세요" })
+    .email("이메일 형식이 올바르지 않습니다"),
+  password: z
+    .string({ required_error: "비밀번호를 입력해주세요" })
+    .min(8, "비밀번호는 8자 이상이어야 합니다"),
+});
+
+export const action = async ({ request }: Route.ActionArgs) => {
+  const formData = await request.formData();
+  const { success, data, error } = formSchema.safeParse(
+    Object.fromEntries(formData)
+  );
+  if (!success) {
+    return {
+      signUpError: null,
+      formErrors: error.flatten().fieldErrors,
+    };
+  }
+  const usernameExists = await checkUsernameExists(request, {
+    username: data.username,
+  });
+  if (usernameExists) {
+    return {
+      signUpError: null,
+      formErrors: {
+        username: ["이미 존재하는 닉네임입니다."],
+        name: [],
+        email: [],
+        password: [],
+      },
+    };
+  }
+
+  const { client, headers } = await makeSSRClient(request);
+  const { error: signUpError } = await client.auth.signUp({
+    email: data.email,
+    password: data.password,
+    options: {
+      data: {
+        name: data.name,
+        username: data.username,
+      },
+    },
+  });
+  if (signUpError) {
+    return {
+      signUpError: signUpError.message,
+      formErrors: {
+        name: [],
+        username: [],
+        email: [],
+        password: [],
+      },
+    };
+  }
+  return redirect("/dashboard", { headers });
+};
+
+export default function JoinPage({ actionData }: Route.ComponentProps) {
+  const navigation = useNavigation();
+  const isSubmitted =
+    navigation.state === "submitting" || navigation.state === "loading";
+
+  useEffect(() => {
+    if (actionData && "signUpError" in actionData && actionData.signUpError) {
+      toast.error(actionData.signUpError);
+    }
+  }, [actionData]);
+
   return (
     <div className="flex flex-col relative items-center justify-center h-full">
       <div className="flex items-center flex-col justify-center w-full max-w-md gap-10">
         <h1 className="text-2xl font-semibold">회원가입</h1>
-        <Form className="w-full space-y-4">
+        <Form className="w-full space-y-4" method="post">
           <Input
             name="name"
             id="name"
@@ -22,6 +111,11 @@ export default function JoinPage() {
             type="text"
             placeholder="이름을 입력해주세요"
           />
+          {actionData && "formErrors" in actionData && (
+            <p className="text-sm text-red-500">
+              {actionData.formErrors.name?.join(", ")}
+            </p>
+          )}
           <Input
             id="username"
             name="username"
@@ -29,6 +123,11 @@ export default function JoinPage() {
             type="text"
             placeholder="닉네임을 입력해주세요"
           />
+          {actionData && "formErrors" in actionData && (
+            <p className="text-sm text-red-500">
+              {actionData.formErrors.username?.join(", ")}
+            </p>
+          )}
           <Input
             id="email"
             name="email"
@@ -36,6 +135,11 @@ export default function JoinPage() {
             type="email"
             placeholder="이메일을 입력해주세요"
           />
+          {actionData && "formErrors" in actionData && (
+            <p className="text-sm text-red-500">
+              {actionData.formErrors.email?.join(", ")}
+            </p>
+          )}
           <Input
             id="password"
             name="password"
@@ -43,8 +147,17 @@ export default function JoinPage() {
             type="password"
             placeholder="비밀번호를 입력해주세요"
           />
-          <Button className="w-full" type="submit">
-            회원가입 하기
+          {actionData && "formErrors" in actionData && (
+            <p className="text-sm text-red-500">
+              {actionData.formErrors.password?.join(", ")}
+            </p>
+          )}
+          <Button className="w-full" type="submit" disabled={isSubmitted}>
+            {isSubmitted ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              "회원가입 하기"
+            )}
           </Button>
           <Button variant={"ghost"} className="w-full">
             <Link to="/auth/login">로그인 하러 가기</Link>

@@ -62,10 +62,12 @@ const menus = [
 ];
 
 export default function Navigation({
+  isRoot,
   isLoggedIn,
   hasNotifications,
   hasMessages,
 }: {
+  isRoot: boolean;
   isLoggedIn: boolean;
   hasNotifications: boolean;
   hasMessages: boolean;
@@ -73,14 +75,16 @@ export default function Navigation({
   return (
     <nav
       className="
-      flex px-8 h-16 items-center justify-between backdrop-blur fixed 
-      top-0 left-0 right-0 z-50 bg-background/50 md:px-16
+      flex px-8 h-16 items-center justify-between fixed 
+      top-0 left-0 right-0 z-50 md:px-16
       "
     >
       <div className="flex items-center">
-        <Link to="/" className="font-bold tracking-tighter text-lg">
-          머니도비
-        </Link>
+        {isRoot && (
+          <Link to="/" className="font-bold tracking-tighter text-lg">
+            머니도비
+          </Link>
+        )}
         <Separator orientation="vertical" className="h-6 mx-4" />
         <NavigationMenu>
           {/* <NavigationMenuList>
