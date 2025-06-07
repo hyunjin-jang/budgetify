@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { ExpenseSetting } from "../components/ExpenseSetting";
+import { ExpenseSetting, formSchema } from "../components/ExpenseSetting";
 import { Button } from "~/common/components/ui/button";
 import type { MetaFunction } from "react-router";
 import { format, addMonths, subMonths } from "date-fns";
 import { ko } from "date-fns/locale";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import IconButton from "~/common/components/iconButton";
 import { getExpenseCategories, getExpenses } from "../queries";
 import type { Route } from "./+types/expenses-page";
 import { ExpenseCard } from "../components/ExpenseCard";
 import { makeSSRClient } from "~/supa-client";
+import { getLoggedIsUserId } from "~/features/settings/queries";
+import { createExpense, deleteExpense } from "../mutations";
+import { toast } from "sonner";
 
 export const meta: MetaFunction = () => {
   return [{ title: "머니도비 지출 설정" }];
@@ -17,32 +19,66 @@ export const meta: MetaFunction = () => {
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { client, headers } = makeSSRClient(request);
-  const expenses = await getExpenses(
-    client,
-    "376adda7-64d1-4eb0-a962-2465dbc9f2cb"
-  );
-  const categories = await getExpenseCategories(
-    client,
-    "376adda7-64d1-4eb0-a962-2465dbc9f2cb"
-  );
+  const userId = await getLoggedIsUserId(client);
+  const expenses = await getExpenses(client, userId);
+  const categories = await getExpenseCategories(client, userId);
   return { expenses, categories };
 };
 
 type Expense = {
-  title: string;
+  id: string;
+  description: string;
   amount: number;
   date: string;
-  category: {
-    id: string;
-    name: string;
-  } | null;
+  category: Record<string, string> | null;
+};
+
+export const action = async ({ request }: Route.ActionArgs) => {
+  const { client } = makeSSRClient(request);
+  const userId = await getLoggedIsUserId(client);
+  const formData = await request.formData();
+  const action = formData.get("action");
+
+  if (action === "create") {
+    const { success, data, error } = formSchema.safeParse({
+      ...Object.fromEntries(formData),
+      amount: Number(formData.get("amount")),
+      date: new Date(formData.get("date") as string),
+    });
+
+    if (!success) {
+      return {
+        expenseError: null,
+        formErrors: error.flatten().fieldErrors,
+      };
+    }
+
+    try {
+      await createExpense(client, { ...data, userId });
+      toast.success("지출이 추가되었습니다.");
+    } catch (error) {
+      toast.error("지출 추가에 실패했습니다.");
+      console.log(error);
+    }
+  } else if (action === "delete") {
+    const expenseId = formData.get("expenseId");
+    try {
+      await deleteExpense(client, expenseId as string);
+      toast.success("지출이 삭제되었습니다.");
+    } catch (error) {
+      toast.error("지출 삭제에 실패했습니다.");
+    }
+  }
 };
 
 export default function ExpensesPage({ loaderData }: Route.ComponentProps) {
   const [isExpenseSetting, setIsExpenseSetting] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
 
-  const handleDeleteExpense = () => {};
+  const categories = loaderData.categories.map((category) => ({
+    label: category.name,
+    value: category.id,
+  }));
 
   const groupedByMonth = loaderData.expenses.reduce((acc, expense) => {
     const monthKey = format(new Date(expense.date), "yyyy년 M월");
@@ -77,11 +113,13 @@ export default function ExpensesPage({ loaderData }: Route.ComponentProps) {
         </div>
 
         <div className="flex items-center justify-between">
-          <IconButton
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setSelectedMonth((prev) => subMonths(prev, 1))}
           >
             <ChevronLeftIcon className="w-4 h-4" />
-          </IconButton>
+          </Button>
           <h1 className="text-xl font-bold">
             {format(selectedMonth, "yyyy년 M월")} 지출현황
           </h1>
@@ -124,18 +162,13 @@ export default function ExpensesPage({ loaderData }: Route.ComponentProps) {
                             e.date === expense.date &&
                             e.amount === expense.amount &&
                             e.category === expense.category &&
-                            e.title === expense.title &&
+                            e.description === expense.description &&
                             loaderData.expenses.indexOf(e) >= offset
                         );
                         offset = realIdx + 1;
 
                         return (
-                          <ExpenseCard
-                            key={idx}
-                            expense={expense}
-                            realIdx={realIdx}
-                            idx={idx}
-                          />
+                          <ExpenseCard key={idx} idx={idx} expense={expense} />
                         );
                       })}
                     </div>
@@ -147,6 +180,7 @@ export default function ExpensesPage({ loaderData }: Route.ComponentProps) {
       </div>
 
       <ExpenseSetting
+        categories={categories}
         isExpenseSetting={isExpenseSetting}
         onOpenChange={() => setIsExpenseSetting(false)}
       />

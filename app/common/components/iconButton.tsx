@@ -3,11 +3,11 @@ import { Button } from "./ui/button";
 
 export default function IconButton({
   children,
-  onClick,
+  type,
   className,
 }: {
   children: React.ReactNode;
-  onClick: () => void;
+  type: "submit" | "button";
   className?: string;
 }) {
   return (
@@ -15,7 +15,7 @@ export default function IconButton({
       className={cn("cursor-pointer", className)}
       variant="ghost"
       size="icon"
-      onClick={onClick}
+      type={type}
     >
       {children}
     </Button>

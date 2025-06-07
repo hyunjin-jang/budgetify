@@ -3,6 +3,7 @@ import { TrashIcon } from "lucide-react";
 import IconButton from "~/common/components/iconButton";
 import { Button } from "~/common/components/ui/button";
 import { cn } from "~/lib/utils";
+import { Form } from "react-router";
 
 type Props = {
   id: string;
@@ -10,7 +11,7 @@ type Props = {
   amount: number;
   start_date: string;
   end_date: string;
-  status: "completed" | "failed" | "scheduled" | "in_progress";
+  status: "completed" | "failed" | "scheduled" | "in_progress" | null;
 };
 
 export function GoalCard({
@@ -32,7 +33,7 @@ export function GoalCard({
   };
 
   function getCardStyleByStatus(
-    status: "scheduled" | "in_progress" | "completed" | "failed"
+    status: "scheduled" | "in_progress" | "completed" | "failed" | null
   ) {
     switch (status) {
       case "completed":
@@ -48,16 +49,6 @@ export function GoalCard({
     }
   }
 
-  const handleStatusChange = (id: string, status: "completed" | "failed") => {
-    // setGoals((prev) =>
-    //   prev.map((goal) => (goal.id === id ? { ...goal, status } : goal))
-    // );
-  };
-
-  const handleDeleteGoal = (id: string) => {
-    // setGoals((prev) => prev.filter((goal) => goal.id !== id));
-  };
-
   return (
     <div
       key={id}
@@ -67,12 +58,13 @@ export function GoalCard({
       )}
     >
       {/* 삭제 버튼 */}
-      <IconButton
-        className="absolute top-3 right-3"
-        onClick={() => handleDeleteGoal(id)}
-      >
-        <TrashIcon className="w-4 h-4 text-destructive" />
-      </IconButton>
+      <Form method="post">
+        <input type="hidden" name="action" value="delete" />
+        <input type="hidden" name="goalId" value={id} />
+        <IconButton className="absolute top-3 right-3" type="submit">
+          <TrashIcon className="w-4 h-4 text-destructive" />
+        </IconButton>
+      </Form>
 
       <div>
         <h2 className="text-base font-semibold">{title}</h2>
@@ -91,26 +83,28 @@ export function GoalCard({
               "text-yellow-600 dark:text-yellow-400": status === "scheduled",
             })}
           >
-            {statusKoreanMap[status]}
+            {status ? statusKoreanMap[status] : "미정"}
           </span>
         </p>
 
-        {status === "completed" || status === "failed" ? null : (
+        {status !== "in_progress" ? null : (
           <div className="mt-2 flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleStatusChange(id, "completed")}
-            >
-              완료로 설정
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleStatusChange(id, "failed")}
-            >
-              실패로 설정
-            </Button>
+            <Form method="post">
+              <input type="hidden" name="action" value="updateStatus" />
+              <input type="hidden" name="goalId" value={id} />
+              <input type="hidden" name="status" value="completed" />
+              <Button variant="outline" size="sm" type="submit">
+                완료로 설정
+              </Button>
+            </Form>
+            <Form method="post">
+              <input type="hidden" name="action" value="updateStatus" />
+              <input type="hidden" name="goalId" value={id} />
+              <input type="hidden" name="status" value="failed" />
+              <Button variant="outline" size="sm" type="submit">
+                실패로 설정
+              </Button>
+            </Form>
           </div>
         )}
       </div>

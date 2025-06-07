@@ -1,6 +1,9 @@
 import { Link, type MetaFunction } from "react-router";
 import { Button } from "~/common/components/ui/button";
 import { BorderBeam } from "../components/magicui/border-beam";
+import type { Route } from "./+types/home-page";
+import { makeSSRClient } from "~/supa-client";
+import { getLoggedIsUserId } from "~/features/settings/queries";
 
 export const meta: MetaFunction = () => {
   return [
@@ -42,7 +45,15 @@ const features = [
   },
 ];
 
-export default function HomePage() {
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const { client } = makeSSRClient(request);
+  const userId = await getLoggedIsUserId(client);
+  return { isLoggedIn: !!userId };
+};
+
+export default function HomePage({ loaderData }: Route.ComponentProps) {
+  const isLoggedIn = loaderData.isLoggedIn;
+
   return (
     <main className="relative overflow-hidden min-h-screen flex flex-col items-center justify-center px-4 bg-background text-foreground">
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[#0a0a0a] via-[#111] to-[#1a1a1a]" />
@@ -52,12 +63,12 @@ export default function HomePage() {
           예산 설정과 소비 관리를 한번에
         </h1>
         <p className="text-lg text-muted-foreground mb-6">
-          머니도비는 수입과 지출을 쉽게 기록하고 예산을 설정하여 체계적으로
-          소비를 관리할 수 있는 스마트 가계부 앱입니다.
+          예산을 설정하고 수입과 지출을 쉽게 기록하세요. <br />
+          체계적으로 소비를 관리하세요.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button size="lg" variant="default" asChild>
-            <Link to="/auth/login">시작하기</Link>
+            <Link to={isLoggedIn ? "/expenses" : "/auth/login"}>시작하기</Link>
           </Button>
           <Button size="lg" variant="outline" asChild>
             <Link to="/about">자세히 알아보기</Link>

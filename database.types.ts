@@ -57,7 +57,7 @@ export type Database = {
           amount: number
           budget_id?: string | null
           created_at?: string
-          id: string
+          id?: string
           title: string
           updated_at?: string
         }
@@ -92,7 +92,7 @@ export type Database = {
           amount: number
           budget_id?: string | null
           created_at?: string
-          id: string
+          id?: string
           title: string
           updated_at?: string
         }
@@ -117,36 +117,33 @@ export type Database = {
       budgets: {
         Row: {
           created_at: string
+          date: string
           id: string
           level: Database["public"]["Enums"]["budget_level"]
-          month: number
           setting_method: Database["public"]["Enums"]["setting_method"]
           total_amount: number
           updated_at: string
           user_id: string | null
-          year: number
         }
         Insert: {
           created_at?: string
-          id: string
+          date?: string
+          id?: string
           level: Database["public"]["Enums"]["budget_level"]
-          month: number
           setting_method: Database["public"]["Enums"]["setting_method"]
           total_amount: number
           updated_at?: string
           user_id?: string | null
-          year: number
         }
         Update: {
           created_at?: string
+          date?: string
           id?: string
           level?: Database["public"]["Enums"]["budget_level"]
-          month?: number
           setting_method?: Database["public"]["Enums"]["setting_method"]
           total_amount?: number
           updated_at?: string
           user_id?: string | null
-          year?: number
         }
         Relationships: [
           {
@@ -196,8 +193,8 @@ export type Database = {
           category: string | null
           created_at: string
           date: string
+          description: string
           id: string
-          title: string
           updated_at: string
           user_id: string | null
         }
@@ -206,8 +203,8 @@ export type Database = {
           category?: string | null
           created_at?: string
           date: string
-          id: string
-          title: string
+          description: string
+          id?: string
           updated_at?: string
           user_id?: string | null
         }
@@ -216,8 +213,8 @@ export type Database = {
           category?: string | null
           created_at?: string
           date?: string
+          description?: string
           id?: string
-          title?: string
           updated_at?: string
           user_id?: string | null
         }
@@ -245,7 +242,7 @@ export type Database = {
           end_date: string
           id: string
           start_date: string
-          status: Database["public"]["Enums"]["goal_status"]
+          status: Database["public"]["Enums"]["goal_status"] | null
           title: string
           updated_at: string
           user_id: string | null
@@ -254,9 +251,9 @@ export type Database = {
           amount: number
           created_at?: string
           end_date: string
-          id: string
+          id?: string
           start_date: string
-          status?: Database["public"]["Enums"]["goal_status"]
+          status?: Database["public"]["Enums"]["goal_status"] | null
           title: string
           updated_at?: string
           user_id?: string | null
@@ -267,7 +264,7 @@ export type Database = {
           end_date?: string
           id?: string
           start_date?: string
-          status?: Database["public"]["Enums"]["goal_status"]
+          status?: Database["public"]["Enums"]["goal_status"] | null
           title?: string
           updated_at?: string
           user_id?: string | null

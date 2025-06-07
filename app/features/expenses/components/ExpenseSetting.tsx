@@ -19,68 +19,44 @@ import {
 } from "~/common/components/ui/select";
 import { Calendar } from "~/common/components/ui/calendar";
 import { cn } from "~/lib/utils";
+import { Form } from "react-router";
+import z from "zod";
 
 type Props = {
+  categories: Record<string, string>[];
   isExpenseSetting: boolean;
   onOpenChange: () => void;
 };
 
-const defaultCategories = [
-  { label: "식비", value: "식비" },
-  { label: "교통", value: "교통" },
-  { label: "카페", value: "카페" },
-  { label: "쇼핑", value: "쇼핑" },
-  { label: "기타", value: "기타" },
-];
+export const formSchema = z.object({
+  category: z.string().min(1, "카테고리를 선택해주세요"),
+  amount: z.number().min(1, "금액을 입력해주세요"),
+  date: z.date(),
+  description: z.string().min(1, "지출내용을 입력해주세요"),
+});
 
 export function ExpenseSetting({
+  categories: initialCategories,
   isExpenseSetting,
   onOpenChange,
-}: // expenseList,
-// setExpenseList,
-Props) {
-  const [categories, setCategories] = useState(defaultCategories);
+}: Props) {
+  const [categories, setCategories] = useState(initialCategories);
   const [category, setCategory] = useState<string>("");
-  const [newCategory, setNewCategory] = useState<string>("");
-  const [amount, setAmount] = useState<string>("");
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [description, setDescription] = useState<string>("");
 
-  const handleSave = () => {
-    if (!date || !category) return;
+  // const handleAddCategory = () => {
+  //   if (!newCategory.trim()) return;
+  //   const newCat = { label: newCategory, value: newCategory };
+  //   setCategories((prev) => [...prev, newCat]);
+  //   setCategory(newCategory);
+  //   setNewCategory("");
+  // };
 
-    const expense = {
-      category,
-      amount,
-      date: format(date, "yyyy-MM-dd"),
-      description,
-    };
-
-    // setExpenseList([expense, ...expenseList]);
-
-    const storageExpenseList = localStorage.getItem("expenseList");
-    const newList = storageExpenseList
-      ? [...JSON.parse(storageExpenseList), expense]
-      : [expense];
-
-    localStorage.setItem("expenseList", JSON.stringify(newList));
-
-    onOpenChange();
-  };
-
-  const handleAddCategory = () => {
-    if (!newCategory.trim()) return;
-    const newCat = { label: newCategory, value: newCategory };
-    setCategories((prev) => [...prev, newCat]);
-    setCategory(newCategory);
-    setNewCategory("");
-  };
-
-  const handleRemoveCategory = (value: string) => {
-    setCategories((prev) => prev.filter((cat) => cat.value !== value));
-    if (category === value) setCategory("");
-  };
+  // const handleRemoveCategory = (value: string) => {
+  //   setCategories((prev) => prev.filter((cat) => cat.value !== value));
+  //   if (category === value) setCategory("");
+  // };
 
   return (
     <Dialog open={isExpenseSetting} onOpenChange={onOpenChange}>
@@ -89,7 +65,23 @@ Props) {
           <DialogTitle>지출금액을 입력해주세요</DialogTitle>
           <DialogDescription>지출의 정보를 입력해주세요.</DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col gap-4">
+        {/* <div className="flex items-center gap-2">
+          <Input
+            type="text"
+            value={newCategory}
+            placeholder="새 카테고리 추가"
+            onChange={(e) => setNewCategory(e.target.value)}
+          />
+          <Button type="button" size="icon" onClick={handleAddCategory}>
+            <PlusIcon className="w-4 h-4" />
+          </Button>
+        </div> */}
+        <Form
+          className="flex flex-col gap-4"
+          method="post"
+          onSubmit={onOpenChange}
+        >
+          <input type="hidden" name="action" value="create" />
           <div className="flex gap-2">
             <Select onValueChange={setCategory} value={category}>
               <SelectTrigger className="w-full">
@@ -104,35 +96,21 @@ Props) {
                     <SelectItem value={cat.value} className="flex-1">
                       {cat.label}
                     </SelectItem>
-                    <Button
+                    {/* <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => handleRemoveCategory(cat.value)}
                     >
                       <Trash2Icon className="w-3 h-3 text-destructive" />
-                    </Button>
+                    </Button> */}
                   </div>
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          <div className="flex items-center gap-2">
-            <Input
-              type="text"
-              value={newCategory}
-              placeholder="새 카테고리 추가"
-              onChange={(e) => setNewCategory(e.target.value)}
-            />
-            <Button type="button" size="icon" onClick={handleAddCategory}>
-              <PlusIcon className="w-4 h-4" />
-            </Button>
+            <input type="hidden" name="category" value={category} />
           </div>
 
-          <Input
-            type="text"
-            placeholder="지출금액"
-            onChange={(e) => setAmount(e.target.value)}
-          />
+          <Input type="number" placeholder="지출금액" name="amount" />
 
           <div>
             <label className="text-sm mb-1 text-muted-foreground">
@@ -150,6 +128,11 @@ Props) {
               <CalendarIcon className="mr-2 h-4 w-4" />
               {date ? format(date, "yyyy-MM-dd") : "날짜 선택"}
             </Button>
+            <input
+              type="hidden"
+              name="date"
+              value={date ? format(date, "yyyy-MM-dd") : ""}
+            />
 
             <Dialog open={calendarOpen} onOpenChange={setCalendarOpen}>
               <DialogContent className="w-auto p-0 [&>button]:hidden">
@@ -169,10 +152,10 @@ Props) {
             type="text"
             placeholder="지출내용"
             multiple
-            onChange={(e) => setDescription(e.target.value)}
+            name="description"
           />
-          <Button onClick={handleSave}>저장</Button>
-        </div>
+          <Button type="submit">저장</Button>
+        </Form>
       </DialogContent>
     </Dialog>
   );
