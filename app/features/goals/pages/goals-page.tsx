@@ -1,20 +1,78 @@
 import { useState } from "react";
 import { Button } from "~/common/components/ui/button";
-import { GoalSetting } from "../components/GoalSetting";
-import type { MetaFunction } from "react-router";
+import { formSchema, GoalSetting } from "../components/GoalSetting";
+import { type MetaFunction } from "react-router";
 import { getGoals } from "../queries";
 import type { Route } from "./+types/goals-page";
 import { GoalCard } from "../components/GoalCard";
 import { makeSSRClient } from "~/supa-client";
+import { getLoggedIsUserId } from "~/features/settings/queries";
+import { createGoal, deleteGoal, updateGoalStatus } from "../mutations";
+import { toast } from "sonner";
+import { Form } from "react-router";
 
 export const meta: MetaFunction = () => {
   return [{ title: "머니도비 적합 규모 구성" }];
 };
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const { client, headers } = makeSSRClient(request);
-  const goals = await getGoals(client, "376adda7-64d1-4eb0-a962-2465dbc9f2cb");
+  const { client } = makeSSRClient(request);
+  const userId = await getLoggedIsUserId(client);
+  const goals = await getGoals(client, userId);
   return { goals };
+};
+
+export const action = async ({ request }: Route.ActionArgs) => {
+  const { client } = await makeSSRClient(request);
+  const userId = await getLoggedIsUserId(client);
+
+  const formData = await request.formData();
+  const action = formData.get("action");
+
+  if (action === "create") {
+    const { success, data, error } = formSchema.safeParse({
+      ...Object.fromEntries(formData),
+      amount: Number(formData.get("amount")),
+      startDate: new Date(formData.get("startDate") as string),
+      endDate: new Date(formData.get("endDate") as string),
+    });
+
+    if (!success) {
+      return {
+        goalError: null,
+        formErrors: error.flatten().fieldErrors,
+      };
+    }
+    try {
+      await createGoal(client, { ...data, userId });
+      toast.success("목표가 생성되었습니다.");
+    } catch (error) {
+      console.log(error);
+      toast.error("목표 생성에 실패했습니다.");
+    }
+  } else if (action === "updateStatus") {
+    const goalId = formData.get("goalId");
+    const status = formData.get("status");
+    try {
+      await updateGoalStatus(
+        client,
+        goalId as string,
+        status as "completed" | "failed"
+      );
+      toast.success("목표 상태가 변경되었습니다.");
+    } catch (error) {
+      toast.error("목표 상태 변경에 실패했습니다.");
+    }
+  } else if (action === "delete") {
+    const goalId = formData.get("goalId");
+    try {
+      await deleteGoal(client, goalId as string);
+      toast.success("목표가 삭제되었습니다.");
+    } catch (error) {
+      toast.error("목표 삭제에 실패했습니다.");
+    }
+  }
+  return null;
 };
 
 type GoalStatus = "scheduled" | "in_progress" | "completed" | "failed";
@@ -69,7 +127,6 @@ export default function GoalsPage({ loaderData }: Route.ComponentProps) {
       <GoalSetting
         open={openGoalSetting}
         onClose={() => setOpenGoalSetting(false)}
-        goal={loaderData.goals[0]}
       />
     </>
   );
