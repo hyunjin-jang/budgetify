@@ -2,8 +2,8 @@ import { bigint, date, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-cor
 import { profiles } from "../settings/schema";
 
 export const expenses = pgTable("expenses", {
-  id: uuid().primaryKey(),
-  title: text().notNull(),
+  id: uuid().primaryKey().defaultRandom(),
+  description: text().notNull(),
   amount: bigint({ mode: "number" }).notNull(),
   date: date().notNull(),
   category: uuid().references(() => expenseCategories.id, { onDelete: "set null" }),
@@ -13,7 +13,7 @@ export const expenses = pgTable("expenses", {
 });
 
 export const expenseCategories = pgTable("expense_categories", {
-  id: uuid().primaryKey(),
+  id: uuid().primaryKey().defaultRandom(),
   name: text().notNull(),
   user_id: uuid().references(() => profiles.id, { onDelete: "cascade" }),
   created_at: timestamp().notNull().defaultNow(),

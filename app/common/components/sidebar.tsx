@@ -25,16 +25,16 @@ const menus: MenuItem[] = [
     name: "목표",
     to: "/goals",
   },
-  {
-    name: "설정",
-    to: "/settings",
-    items: [
-      {
-        name: "프로필 설정",
-        to: "/settings/profile",
-      },
-    ],
-  },
+  // {
+  //   name: "설정",
+  //   to: "/settings",
+  //   items: [
+  //     {
+  //       name: "프로필 설정",
+  //       to: "/settings/profile",
+  //     },
+  //   ],
+  // },
   {
     name: "로그아웃",
     to: "auth/logout",

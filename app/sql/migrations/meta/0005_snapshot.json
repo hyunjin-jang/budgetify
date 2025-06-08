@@ -1,6 +1,6 @@
 {
-  "id": "1e1f0421-596b-4b0d-8078-b0fd37491f7d",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "fe4f4c15-6a70-4656-bd32-ddd711eb5aa8",
+  "prevId": "7a4ca716-aeb0-4ec6-95b6-a30194e5631c",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -243,6 +243,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -272,10 +278,31 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "budget_recommendations_user_id_profiles_id_fk": {
+          "name": "budget_recommendations_user_id_profiles_id_fk",
+          "tableFrom": "budget_recommendations",
+          "tableTo": "profiles",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "budget_recommendations_user_id_unique": {
+          "name": "budget_recommendations_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -298,28 +325,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "level": {
-          "name": "level",
-          "type": "budget_level",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
         "total_amount": {
           "name": "total_amount",
           "type": "bigint",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "year": {
-          "name": "year",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "month": {
-          "name": "month",
-          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -328,6 +336,13 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
+        },
+        "date": {
+          "name": "date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -374,7 +389,8 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "name": {
           "name": "name",
@@ -433,10 +449,11 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
-        "title": {
-          "name": "title",
+        "description": {
+          "name": "description",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -523,7 +540,8 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "title": {
           "name": "title",
