@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-
 import {
   Dialog,
   DialogContent,
@@ -15,46 +13,27 @@ import { Button } from "~/common/components/ui/button";
 import { Calendar } from "~/common/components/ui/calendar";
 import { cn } from "~/lib/utils";
 import { Form } from "react-router";
+import z from "zod";
 
-type Goal = {
-  id: string;
-  title: string;
-  amount: number;
-  start_date: string;
-  end_date: string;
-  status: "scheduled" | "in_progress" | "completed" | "failed";
-};
+export const formSchema = z.object({
+  title: z.string().min(1, "제목을 입력해주세요"),
+  amount: z.number().min(1, "금액을 입력해주세요"),
+  startDate: z.date(),
+  endDate: z.date(),
+});
 
 export function GoalSetting({
   open,
   onClose,
-  goal,
 }: {
   open: boolean;
   onClose: () => void;
-  goal: Goal;
 }) {
   const [startCalendarOpen, setStartCalendarOpen] = useState(false);
   const [endCalendarOpen, setEndCalendarOpen] = useState(false);
 
-  const [title, setTitle] = useState("");
-  const [amount, setAmount] = useState<number | "">("");
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>();
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // 기본 제출 막기
-    if (!title || !amount || !startDate || !endDate) {
-      alert("모든 필드를 입력해주세요.");
-      return;
-    }
-
-    onClose();
-    setTitle("");
-    setAmount("");
-    setStartDate(new Date());
-    setEndDate(undefined);
-  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -66,20 +45,20 @@ export function GoalSetting({
           </DialogDescription>
         </DialogHeader>
 
-        <Form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-          <Input
-            placeholder="예: 일본 여행"
-            required
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+        <Form
+          className="flex flex-col gap-4"
+          method="post"
+          onSubmit={() => onClose()}
+        >
+          <input type="hidden" name="action" value="create" />
+          <Input id="title" name="title" required placeholder="예: 일본 여행" />
 
           <Input
+            id="amount"
+            name="amount"
             type="number"
             placeholder="금액 (예: 100000)"
             required
-            value={amount}
-            onChange={(e) => setAmount(Number(e.target.value))}
           />
 
           {/* 시작일 */}
@@ -97,6 +76,11 @@ export function GoalSetting({
               <CalendarIcon className="mr-2 h-4 w-4" />
               {startDate ? format(startDate, "yyyy-MM-dd") : "날짜 선택"}
             </Button>
+            <input
+              type="hidden"
+              name="startDate"
+              value={startDate ? format(startDate, "yyyy-MM-dd") : ""}
+            />
 
             <Dialog
               open={startCalendarOpen}
@@ -130,6 +114,11 @@ export function GoalSetting({
               <CalendarIcon className="mr-2 h-4 w-4" />
               {endDate ? format(endDate, "yyyy-MM-dd") : "날짜 선택"}
             </Button>
+            <input
+              type="hidden"
+              name="endDate"
+              value={endDate ? format(endDate, "yyyy-MM-dd") : ""}
+            />
 
             <Dialog open={endCalendarOpen} onOpenChange={setEndCalendarOpen}>
               <DialogContent className="w-auto p-0 [&>button]:hidden">

@@ -1,4 +1,4 @@
-import { bigint, integer, pgEnum, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
+import { bigint, integer, numeric, pgEnum, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
 import { profiles } from "../settings/schema";
 
 export const budgetLevels = pgEnum("budget_level", [
@@ -13,19 +13,18 @@ export const settingMethods = pgEnum("setting_method", [
 ]);
 
 export const budgets = pgTable("budgets", {
-  id: uuid().primaryKey(),
+  id: uuid().primaryKey().defaultRandom(),
   setting_method: settingMethods().notNull(),
-  level: budgetLevels().notNull(),
+  // level: budgetLevels().notNull(),
   total_amount: bigint({ mode: "number" }).notNull(),
-  year: integer().notNull(),
-  month: integer().notNull(),
   user_id: uuid().references(() => profiles.id, { onDelete: "cascade" }),
+  date: timestamp().notNull().defaultNow(),
   created_at: timestamp().notNull().defaultNow(),
   updated_at: timestamp().notNull().defaultNow(),
 });
 
 export const budgetIncomes = pgTable("budget_incomes", {
-  id: uuid().primaryKey(),
+  id: uuid().primaryKey().defaultRandom(),
   budget_id: uuid().references(() => budgets.id, { onDelete: "cascade" }),
   title: text().notNull(),
   amount: bigint({ mode: "number" }).notNull(),
@@ -34,7 +33,7 @@ export const budgetIncomes = pgTable("budget_incomes", {
 });
 
 export const budgetFixedExpenses = pgTable("budget_fixed_expenses", {
-  id: uuid().primaryKey(),
+  id: uuid().primaryKey().defaultRandom(),
   budget_id: uuid().references(() => budgets.id, { onDelete: "cascade" }),
   title: text().notNull(),
   amount: bigint({ mode: "number" }).notNull(),
@@ -42,9 +41,21 @@ export const budgetFixedExpenses = pgTable("budget_fixed_expenses", {
   updated_at: timestamp().notNull().defaultNow(),
 });
 
-export const budgetAllocations = pgTable("budget_allocations", {
-  id: uuid().primaryKey(),
+export const budgetRecommendations = pgTable("budget_recommendations", {
+  id: uuid().primaryKey().defaultRandom(),
   budget_id: uuid().references(() => budgets.id, { onDelete: "cascade" }),
+  title: text().notNull(),
+  description: text().notNull(),
+  savings: bigint({ mode: "number" }).notNull(),
+  saving_ratio: numeric("saving_ratio", { precision: 5, scale: 2 }).notNull(),
+  user_id: uuid().references(() => profiles.id, { onDelete: "cascade" }).unique(),
+  created_at: timestamp().notNull().defaultNow(),
+  updated_at: timestamp().notNull().defaultNow(),
+});
+
+export const budgetAllocations = pgTable("budget_allocations", {
+  id: uuid().primaryKey().defaultRandom(),
+  recommendation_id: uuid().references(() => budgetRecommendations.id, { onDelete: "cascade" }),
   category: text().notNull(),
   amount: bigint({ mode: "number" }).notNull(),
   created_at: timestamp().notNull().defaultNow(),

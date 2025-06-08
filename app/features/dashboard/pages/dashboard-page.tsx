@@ -1,8 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { MetaFunction } from "react-router";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import Calendar from "~/common/components/calendar";
-import { addMonths, format, subMonths } from "date-fns";
+import {
+  addMonths,
+  format,
+  subMonths,
+  addDays,
+  startOfMonth,
+  endOfMonth,
+  min,
+  parseISO,
+} from "date-fns";
 
 import {
   ChartContainer,
@@ -11,13 +20,48 @@ import {
   type ChartConfig,
 } from "~/common/components/ui/chart";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import IconButton from "~/common/components/iconButton";
+import type { Route } from "./+types/dashboard-page";
+import { makeSSRClient } from "~/supa-client";
+import { getLoggedIsUserId } from "~/features/settings/queries";
+import { Button } from "~/common/components/ui/button";
+import {
+  getBudget,
+  getBudgetMonthlyTotal,
+  getBudgetYearlyTotal,
+} from "~/features/budget/queries";
+import {
+  getExpensesByMonth,
+  getExpensesByYear,
+} from "~/features/expenses/queries";
 
 export const meta: MetaFunction = () => {
-  return [
-    { title: "머니도비 대시보드" },
-    { name: "description", content: "머니도비 대시보드" },
-  ];
+  return [{ title: "머니도비 대시보드" }];
+};
+
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const { client } = await makeSSRClient(request);
+  const userId = await getLoggedIsUserId(client);
+  const budget = await getBudget(client, userId, new Date());
+  const budgetMonthlyTotal = await getBudgetMonthlyTotal(
+    client,
+    userId,
+    new Date()
+  );
+  const budgetYearlyTotal = await getBudgetYearlyTotal(
+    client,
+    userId,
+    new Date()
+  );
+
+  const expenses = await getExpensesByMonth(client, userId, new Date());
+  const expensesByYear = await getExpensesByYear(client, userId, new Date());
+  return {
+    budget,
+    budgetYearlyTotal,
+    budgetMonthlyTotal,
+    expenses,
+    expensesByYear,
+  };
 };
 
 const chartConfig = {
@@ -31,106 +75,136 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function DashboardPage() {
+export default function DashboardPage({ loaderData }: Route.ComponentProps) {
+  const {
+    budget,
+    budgetMonthlyTotal,
+    budgetYearlyTotal,
+    expenses,
+    expensesByYear,
+  } = loaderData;
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const chartMonthData = [
-    { month: "1월", budget: 186, expense: 80 },
-    { month: "2월", budget: 305, expense: 200 },
-    { month: "3월", budget: 237, expense: 120 },
-    { month: "4월", budget: 73, expense: 190 },
-    { month: "5월", budget: 209, expense: 130 },
-    { month: "6월", budget: 214, expense: 140 },
-  ];
-  const chartWeeklyData = [
-    { day: "1주", budget: 186, expense: 80 },
-    { day: "2주", budget: 305, expense: 200 },
-    { day: "3주", budget: 237, expense: 120 },
-    { day: "4주", budget: 73, expense: 190 },
-    { day: "5주", budget: 209, expense: 130 },
-  ];
-  const expensesByDate: Record<string, { category: string; amount: number }[]> =
-    {
-      "2025-05-02": [
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-        { category: "식비", amount: 120000 },
-        { category: "교통", amount: 3000 },
-      ],
-      "2025-05-06": [{ category: "카페", amount: 4500 }],
-    };
+  const chartMonthData = useMemo(() => {
+    const currentYear = format(selectedDate, "yyyy");
+    const monthlyData = Array.from({ length: 12 }, (_, i) => {
+      const month = i + 1;
+      const monthKey = `${currentYear}-${month.toString().padStart(2, "0")}`;
+
+      // 해당 월의 예산 합계
+      const budget = budgetYearlyTotal
+        .filter((b) => b.date.startsWith(monthKey))
+        .reduce((sum, b) => sum + (b.total_amount || 0), 0);
+
+      // 해당 월의 지출 합계
+      const expense = expensesByYear
+        .filter((e) => e.date.startsWith(monthKey))
+        .reduce((sum, e) => sum + e.amount, 0);
+
+      return {
+        month: `${month}월`,
+        budget,
+        expense,
+      };
+    });
+
+    return monthlyData;
+  }, [budgetYearlyTotal, expensesByYear, selectedDate]);
+
+  const chartWeeklyData = useMemo(() => {
+    const lastDayOfMonth = endOfMonth(selectedDate);
+    const totalBudget = budget?.total_amount || 0;
+    const daysInMonth = lastDayOfMonth.getDate();
+
+    // 주별 구간 계산
+    let weekRanges = [];
+    let start = startOfMonth(selectedDate);
+    while (start <= lastDayOfMonth) {
+      const end = min([addDays(start, 6), lastDayOfMonth]);
+      weekRanges.push([start, end]);
+      start = addDays(end, 1);
+    }
+
+    let budgets: number[] = [];
+    let budgetSum = 0;
+
+    weekRanges.forEach(([weekStart, weekEnd], i) => {
+      const daysInWeek = weekEnd.getDate() - weekStart.getDate() + 1;
+      let weekBudget = Math.floor((daysInWeek / daysInMonth) * totalBudget);
+      budgets.push(weekBudget);
+      budgetSum += weekBudget;
+    });
+    // 마지막 주에 남은 금액 몰아주기
+    budgets[budgets.length - 1] += totalBudget - budgetSum;
+
+    const weeks = weekRanges.map(([weekStart, weekEnd], i) => {
+      const expense = expenses
+        .filter((e) => {
+          const expenseDate = parseISO(e.date);
+          return expenseDate >= weekStart && expenseDate <= weekEnd;
+        })
+        .reduce((sum, e) => sum + e.amount, 0);
+
+      return {
+        day: `${i + 1}주`,
+        budget: budgets[i],
+        expense,
+      };
+    });
+
+    return weeks;
+  }, [budget, expenses, selectedDate]);
 
   const totalThisMonth = useMemo(() => {
     const monthKey = format(selectedDate, "yyyy-MM");
-    const list = Object.entries(expensesByDate)
-      .filter(([date]) => date.startsWith(monthKey))
-      .flatMap(([_, items]) => items)
-      .map((item) => item.amount);
-    return list.reduce((a, b) => a + b, 0);
-  }, [expensesByDate, selectedDate]);
+    return expenses
+      .filter((expense) => expense.date.startsWith(monthKey))
+      .reduce((sum, expense) => sum + expense.amount, 0);
+  }, [expenses, selectedDate]);
 
   const mostSpentCategory = useMemo(() => {
     const monthKey = format(selectedDate, "yyyy-MM");
     const counter: Record<string, number> = {};
-    Object.entries(expensesByDate)
-      .filter(([date]) => date.startsWith(monthKey))
-      .flatMap(([_, items]) => items)
-      .forEach((e) => {
-        counter[e.category] = (counter[e.category] || 0) + e.amount;
+
+    expenses
+      .filter((expense) => expense.date.startsWith(monthKey))
+      .forEach((expense) => {
+        const categoryName = expense.category?.name || "미분류";
+        counter[categoryName] = (counter[categoryName] || 0) + expense.amount;
       });
+
     const sorted = Object.entries(counter).sort((a, b) => b[1] - a[1]);
     return sorted[0]?.[0] || "없음";
-  }, [expensesByDate, selectedDate]);
+  }, [expenses, selectedDate]);
 
   const spendingDays = useMemo(() => {
     const monthKey = format(selectedDate, "yyyy-MM");
-    return Object.keys(expensesByDate).filter((date) =>
-      date.startsWith(monthKey)
-    ).length;
-  }, [expensesByDate, selectedDate]);
+    const uniqueDates = new Set(
+      expenses
+        .filter((expense) => expense.date.startsWith(monthKey))
+        .map((expense) => expense.date)
+    );
+    return uniqueDates.size;
+  }, [expenses, selectedDate]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div className="col-span-2 flex items-center justify-between mb-4">
-        <IconButton
+        <Button
+          variant="ghost"
           onClick={() => setSelectedDate((prev) => subMonths(prev, 1))}
         >
           <ChevronLeftIcon className="w-4 h-4" />
-        </IconButton>
+        </Button>
         <h2 className="text-lg font-semibold">
           {format(selectedDate, "yyyy년 M월")} 요약
         </h2>
-        <IconButton
+        <Button
+          variant="ghost"
           onClick={() => setSelectedDate((prev) => addMonths(prev, 1))}
         >
           <ChevronRightIcon className="w-4 h-4" />
-        </IconButton>
+        </Button>
       </div>
 
       <div className="col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -150,7 +224,16 @@ export default function DashboardPage() {
           <span className="text-sm text-muted-foreground">
             예산 대비 잔여율
           </span>
-          <span className="text-xl font-bold">89%</span>
+          <span className="text-xl font-bold">
+            {budget?.total_amount
+              ? (
+                  ((budget.total_amount - totalThisMonth) /
+                    budget.total_amount) *
+                  100
+                ).toFixed(1)
+              : "0.0"}
+            %
+          </span>
         </div>
         <div className="bg-muted rounded-xl p-4 flex flex-col gap-1">
           <span className="text-sm text-muted-foreground">
@@ -220,7 +303,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="col-span-2 flex flex-col gap-4">
-        <Calendar expensesByDate={expensesByDate} currentDate={selectedDate} />
+        <Calendar expenses={expenses} currentDate={selectedDate} />
       </div>
     </div>
   );

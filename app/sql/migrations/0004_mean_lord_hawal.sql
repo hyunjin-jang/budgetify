@@ -1,0 +1,3 @@
+ALTER TABLE "budget_recommendations" ADD COLUMN "user_id" uuid;--> statement-breakpoint
+ALTER TABLE "budget_recommendations" ADD CONSTRAINT "budget_recommendations_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "budget_recommendations" ADD CONSTRAINT "budget_recommendations_user_id_unique" UNIQUE("user_id");

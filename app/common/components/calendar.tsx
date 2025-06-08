@@ -15,7 +15,7 @@ import {
   TagIcon,
 } from "lucide-react";
 import IconButton from "./iconButton";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { cn } from "~/lib/utils";
 import {
   Dialog,
@@ -25,19 +25,39 @@ import {
 } from "~/common/components/ui/dialog";
 
 type Expense = {
-  category: string;
+  id: string;
+  description: string;
   amount: number;
+  date: string;
+  category: {
+    id: string;
+    name: string;
+  } | null;
 };
 
 type Props = {
   currentDate: Date;
-  expensesByDate: Record<string, Expense[]>;
+  expenses: Expense[];
 };
 
-export default function Calendar({ expensesByDate, currentDate }: Props) {
+export default function Calendar({ expenses, currentDate }: Props) {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  // const [date, setDate] = useState<Date>(currentDate);
+
+  const expensesByDate = useMemo(() => {
+    return expenses.reduce((acc, expense) => {
+      const date = expense.date;
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push({
+        category: expense.category?.name || "미분류",
+        amount: expense.amount,
+        description: expense.description,
+      });
+      return acc;
+    }, {} as Record<string, { category: string; amount: number; description: string }[]>);
+  }, [expenses]);
 
   const days = eachDayOfInterval({
     start: startOfMonth(currentDate),
