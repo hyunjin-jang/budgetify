@@ -9,7 +9,7 @@ export const goalStatus = pgEnum("goal_status", [
 ]);
 
 export const goals = pgTable("goals", {
-  id: uuid().primaryKey(),
+  id: uuid().primaryKey().defaultRandom(),
   title: text().notNull(),
   amount: bigint({ mode: "number" }).notNull(),
   start_date: date().notNull(),

@@ -113,12 +113,31 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 
   const chartWeeklyData = useMemo(() => {
     const lastDayOfMonth = endOfMonth(selectedDate);
+    const totalBudget = budget?.total_amount || 0;
+    const daysInMonth = lastDayOfMonth.getDate();
 
-    const weeks = Array.from({ length: 5 }, (_, i) => {
-      const weekStart = addDays(startOfMonth(selectedDate), i * 7);
-      const weekEnd = min([addDays(weekStart, 6), lastDayOfMonth]);
+    // 주별 구간 계산
+    let weekRanges = [];
+    let start = startOfMonth(selectedDate);
+    while (start <= lastDayOfMonth) {
+      const end = min([addDays(start, 6), lastDayOfMonth]);
+      weekRanges.push([start, end]);
+      start = addDays(end, 1);
+    }
 
-      // 해당 주의 지출 합계
+    let budgets: number[] = [];
+    let budgetSum = 0;
+
+    weekRanges.forEach(([weekStart, weekEnd], i) => {
+      const daysInWeek = weekEnd.getDate() - weekStart.getDate() + 1;
+      let weekBudget = Math.floor((daysInWeek / daysInMonth) * totalBudget);
+      budgets.push(weekBudget);
+      budgetSum += weekBudget;
+    });
+    // 마지막 주에 남은 금액 몰아주기
+    budgets[budgets.length - 1] += totalBudget - budgetSum;
+
+    const weeks = weekRanges.map(([weekStart, weekEnd], i) => {
       const expense = expenses
         .filter((e) => {
           const expenseDate = parseISO(e.date);
@@ -126,23 +145,15 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
         })
         .reduce((sum, e) => sum + e.amount, 0);
 
-      // 해당 주의 예산 합계
-      const budget = budgetMonthlyTotal
-        .filter((b) => {
-          const budgetDate = new Date(b.date);
-          return budgetDate >= weekStart && budgetDate <= weekEnd;
-        })
-        .reduce((sum, b) => sum + (b.total_amount || 0), 0);
-
       return {
         day: `${i + 1}주`,
-        budget,
+        budget: budgets[i],
         expense,
       };
     });
 
     return weeks;
-  }, [budgetMonthlyTotal, expenses, selectedDate]);
+  }, [budget, expenses, selectedDate]);
 
   const totalThisMonth = useMemo(() => {
     const monthKey = format(selectedDate, "yyyy-MM");
@@ -214,11 +225,13 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
             예산 대비 잔여율
           </span>
           <span className="text-xl font-bold">
-            {(
-              (((budget?.total_amount ?? 0) - totalThisMonth) /
-                (budget?.total_amount ?? 0)) *
-              100
-            ).toFixed(1)}
+            {budget?.total_amount
+              ? (
+                  ((budget.total_amount - totalThisMonth) /
+                    budget.total_amount) *
+                  100
+                ).toFixed(1)
+              : "0.0"}
             %
           </span>
         </div>

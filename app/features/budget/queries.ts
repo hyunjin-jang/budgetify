@@ -54,14 +54,30 @@ export const getIncomes = async (
   return data;
 };
 
+export const getBudgetRecommendation = async (
+  client: SupabaseClient<Database>,
+  userId: string,
+) => {
+  const { data, error } = await client
+    .from("budget_recommendations")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle()
+
+  if (error) {
+    throw error;
+  }
+  return data;
+};
+
 export const getBudgetAllocations = async (
   client: SupabaseClient<Database>,
-  budgetId: string,
+  recommendationId: string,
 ) => {
   const { data, error } = await client
     .from("budget_allocations")
     .select("*")
-    .eq("budget_id", budgetId)
+    .eq("recommendation_id", recommendationId)
 
   if (error) {
     throw error;

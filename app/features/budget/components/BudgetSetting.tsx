@@ -22,7 +22,7 @@ type Props = {
 export const formSchema = z.object({
   settingMethod: z.enum(["amount", "income_based"]),
   totalAmount: z.number().min(10000, "예산은 10,000원 이상이어야 합니다."),
-  level: z.enum(["basic", "intermediate", "advanced"]),
+  // level: z.enum(["basic", "intermediate", "advanced"]),
   fixedCost: z
     .array(
       z.object({
@@ -239,7 +239,7 @@ export function BudgetSetting({ isBudgetSetting, closeModal }: Props) {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <Button onClick={() => setActiveStep("level")}>
+                      <Button onClick={() => setActiveStep("confirm")}>
                         다음
                       </Button>
                       <Button
@@ -376,7 +376,7 @@ export function BudgetSetting({ isBudgetSetting, closeModal }: Props) {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <Button onClick={() => setActiveStep("level")}>
+                      <Button onClick={() => setActiveStep("confirm")}>
                         다음
                       </Button>
                       <Button

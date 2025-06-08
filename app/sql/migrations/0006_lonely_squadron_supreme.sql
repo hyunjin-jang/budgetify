@@ -1,0 +1,1 @@
+ALTER TABLE "budget_recommendations" ALTER COLUMN "saving_ratio" SET DATA TYPE numeric(5, 2);

@@ -12,34 +12,34 @@ export type Database = {
       budget_allocations: {
         Row: {
           amount: number
-          budget_id: string | null
           category: string
           created_at: string
           id: string
+          recommendation_id: string | null
           updated_at: string
         }
         Insert: {
           amount: number
-          budget_id?: string | null
           category: string
           created_at?: string
-          id: string
+          id?: string
+          recommendation_id?: string | null
           updated_at?: string
         }
         Update: {
           amount?: number
-          budget_id?: string | null
           category?: string
           created_at?: string
           id?: string
+          recommendation_id?: string | null
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "budget_allocations_budget_id_budgets_id_fk"
-            columns: ["budget_id"]
+            foreignKeyName: "budget_allocations_recommendation_id_budget_recommendations_id_"
+            columns: ["recommendation_id"]
             isOneToOne: false
-            referencedRelation: "budgets"
+            referencedRelation: "budget_recommendations"
             referencedColumns: ["id"]
           },
         ]
@@ -114,12 +114,62 @@ export type Database = {
           },
         ]
       }
+      budget_recommendations: {
+        Row: {
+          budget_id: string | null
+          created_at: string
+          description: string
+          id: string
+          saving_ratio: number
+          savings: number
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          budget_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          saving_ratio: number
+          savings: number
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          budget_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          saving_ratio?: number
+          savings?: number
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_recommendations_budget_id_budgets_id_fk"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "budgets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_recommendations_user_id_profiles_id_fk"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       budgets: {
         Row: {
           created_at: string
           date: string
           id: string
-          level: Database["public"]["Enums"]["budget_level"]
           setting_method: Database["public"]["Enums"]["setting_method"]
           total_amount: number
           updated_at: string
@@ -129,7 +179,6 @@ export type Database = {
           created_at?: string
           date?: string
           id?: string
-          level: Database["public"]["Enums"]["budget_level"]
           setting_method: Database["public"]["Enums"]["setting_method"]
           total_amount: number
           updated_at?: string
@@ -139,7 +188,6 @@ export type Database = {
           created_at?: string
           date?: string
           id?: string
-          level?: Database["public"]["Enums"]["budget_level"]
           setting_method?: Database["public"]["Enums"]["setting_method"]
           total_amount?: number
           updated_at?: string
@@ -165,7 +213,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          id: string
+          id?: string
           name: string
           updated_at?: string
           user_id?: string | null
@@ -242,7 +290,7 @@ export type Database = {
           end_date: string
           id: string
           start_date: string
-          status: Database["public"]["Enums"]["goal_status"] | null
+          status: Database["public"]["Enums"]["goal_status"]
           title: string
           updated_at: string
           user_id: string | null
@@ -253,7 +301,7 @@ export type Database = {
           end_date: string
           id?: string
           start_date: string
-          status?: Database["public"]["Enums"]["goal_status"] | null
+          status?: Database["public"]["Enums"]["goal_status"]
           title: string
           updated_at?: string
           user_id?: string | null
@@ -264,7 +312,7 @@ export type Database = {
           end_date?: string
           id?: string
           start_date?: string
-          status?: Database["public"]["Enums"]["goal_status"] | null
+          status?: Database["public"]["Enums"]["goal_status"]
           title?: string
           updated_at?: string
           user_id?: string | null

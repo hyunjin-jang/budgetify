@@ -12,7 +12,7 @@ export const createBudget = async (
     .insert({
       user_id: budget.userId,
       total_amount: budget.totalAmount,
-      level: budget.level,
+      // level: budget.level,
       setting_method: budget.settingMethod,
     })
     .select('id')
@@ -52,7 +52,7 @@ export const updateBudget = async (
   const { data, error } = await client
     .from("budgets")
     .update({
-      level: budget.level,
+      // level: budget.level,
       setting_method: budget.settingMethod,
       total_amount: budget.totalAmount,
     })
@@ -78,6 +78,46 @@ export const updateBudget = async (
         budget_id: budget.id,
         amount: income.amount,
         title: income.source,
+      })));
+  }
+
+  if (error) {
+    throw error;
+  }
+
+  return true;
+};
+
+export const createBudgetRecommendation = async (
+  client: SupabaseClient<Database>,
+  userId: string,
+  budgetId: string,
+  recommendation: any,
+) => {
+  const { data: budgetRecommendation, error } = await client
+    .from("budget_recommendations")
+    .insert({
+      budget_id: budgetId,
+      title: recommendation.title,
+      description: recommendation.description,
+      savings: recommendation.savings,
+      saving_ratio: recommendation.saving_ratio,
+      user_id: userId,
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  if (budgetRecommendation) {
+    await client
+      .from("budget_allocations")
+      .insert(recommendation.allocations.map((allocation: any) => ({
+        recommendation_id: budgetRecommendation.id,
+        category: allocation.category,
+        amount: allocation.amount,
       })));
   }
 
