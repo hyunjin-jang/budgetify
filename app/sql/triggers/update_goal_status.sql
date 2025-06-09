@@ -1,5 +1,9 @@
 create or replace function update_goal_status()
-returns trigger as $$
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
 declare
   today date := current_date;
 begin
@@ -13,7 +17,9 @@ begin
 
   return new;
 end;
-$$ language plpgsql;
+$$;
+
+drop trigger if exists set_goal_status_on_insert on goals;
 
 create trigger set_goal_status_on_insert
 before insert on goals
