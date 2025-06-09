@@ -1,8 +1,10 @@
-create function public.handle_new_user()
+drop function if exists public.handle_new_user() CASCADE;
+
+create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer
-set search_path = ''
+set search_path = public, auth
 as $$
 begin
     if new.raw_app_meta_data is not null then
@@ -19,6 +21,8 @@ begin
     return new;
 end;
 $$;
+
+drop trigger if exists user_to_profile_trigger on auth.users;
 
 create trigger user_to_profile_trigger
 after insert on auth.users
