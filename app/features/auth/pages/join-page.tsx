@@ -38,6 +38,7 @@ const formSchema = z.object({
 });
 
 export const action = async ({ request }: Route.ActionArgs) => {
+  console.log(process.env.BASE_URL);
   const formData = await request.formData();
   const { success, data, error } = formSchema.safeParse(
     Object.fromEntries(formData)
@@ -85,6 +86,20 @@ export const action = async ({ request }: Route.ActionArgs) => {
       },
     };
   }
+
+  // 회원가입 성공 시 웰컴 메일 API 호출
+  await fetch(`${process.env.BASE_URL}/api/welcome`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      welcome: "moneydoby-welcome",
+    },
+    body: JSON.stringify({
+      email: data.email,
+      username: data.username,
+    }),
+  });
+
   return redirect("/dashboard", { headers });
 };
 
