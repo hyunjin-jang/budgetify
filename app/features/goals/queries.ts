@@ -7,8 +7,10 @@ export const getGoals = async (client: SupabaseClient<Database>, userId: string)
     .select("id, title, amount, start_date, end_date, status")
     .eq("user_id", userId)
     .order("start_date", { ascending: true });
+
   if (error) {
     throw error;
   }
+
   return data;
 };

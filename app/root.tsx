@@ -15,6 +15,7 @@ import { Toaster } from "./common/components/ui/sonner";
 import Sidebar from "./common/components/sidebar";
 import { makeSSRClient } from "./supa-client";
 import { getUserById } from "./features/settings/queries";
+import { getNotifications } from "./features/notification/queries";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -72,7 +73,8 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   } = await client.auth.getUser();
   if (user) {
     const profile = await getUserById(client, { id: user.id });
-    return { user, profile };
+    const notifications = await getNotifications(client, user.id);
+    return { user, profile, notifications };
   }
   return { user: null, profile: null };
 };
@@ -94,6 +96,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
         isLoggedIn={isLoggedIn}
         hasNotifications={false}
         hasMessages={false}
+        notifications={loaderData.notifications || []}
       />
 
       {/* 사이드바 */}

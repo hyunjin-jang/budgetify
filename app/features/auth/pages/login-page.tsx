@@ -6,7 +6,8 @@ import { Loader2 } from "lucide-react";
 import { z } from "zod";
 import { makeSSRClient } from "~/supa-client";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export const meta: MetaFunction = () => {
   return [{ title: "머니도비 로그인" }];
@@ -61,6 +62,7 @@ export default function LoginPage({ actionData }: Route.ComponentProps) {
   const navigation = useNavigation();
   const isSubmitted =
     navigation.state === "submitting" || navigation.state === "loading";
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (actionData && "loginError" in actionData) {
@@ -88,13 +90,28 @@ export default function LoginPage({ actionData }: Route.ComponentProps) {
               </p>
             )}
 
-          <Input
-            id="password"
-            name="password"
-            required
-            type="password"
-            placeholder="비밀번호를 입력해주세요"
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              name="password"
+              required
+              type={showPassword ? "text" : "password"}
+              placeholder="비밀번호를 입력해주세요"
+              className="pr-10"
+            />
+            <button
+              type="button"
+              tabIndex={-1}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+              onClick={() => setShowPassword((v) => !v)}
+            >
+              {showPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
+            </button>
+          </div>
           {actionData &&
             "formErrors" in actionData &&
             actionData.formErrors && (

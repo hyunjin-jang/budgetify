@@ -19,7 +19,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "~/common/components/ui/chart";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { BellIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import type { Route } from "./+types/dashboard-page";
 import { makeSSRClient } from "~/supa-client";
 import { getLoggedIsUserId } from "~/features/settings/queries";
