@@ -5,50 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1749384686269,
-      "tag": "0000_easy_wolfsbane",
+      "when": 1749714490530,
+      "tag": "0000_first_warlock",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1749384907486,
-      "tag": "0001_light_puppet_master",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1749388866888,
-      "tag": "0002_dashing_lenny_balinger",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1749391125715,
-      "tag": "0003_famous_scourge",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1749392589770,
-      "tag": "0004_mean_lord_hawal",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1749395111995,
-      "tag": "0005_fearless_mordo",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1749396816126,
-      "tag": "0006_lonely_squadron_supreme",
+      "when": 1749717743787,
+      "tag": "0001_bitter_living_mummy",
       "breakpoints": true
     }
   ]

@@ -4,10 +4,18 @@ export default [
   index("common/pages/home-page.tsx"),
   route("about", "common/pages/about-page.tsx"),
 
+  ...prefix("api", [
+    route("/notification", "api/notification-api.tsx"),
+  ]),
+
   ...prefix("auth", [
     route("/join", "features/auth/pages/join-page.tsx"),
     route("/login", "features/auth/pages/login-page.tsx"),
     route("/logout", "features/auth/pages/logout-page.tsx"),
+  ]),
+
+  ...prefix("notification", [
+    index("features/notification/pages/notifications-page.tsx"),
   ]),
 
   ...prefix("budget", [

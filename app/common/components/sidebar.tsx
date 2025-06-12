@@ -53,7 +53,7 @@ export default function Sidebar({ isRoot }: { isRoot: boolean }) {
     <>
       {/* 모바일 햄버거 메뉴 */}
       {!isOpen && !isRoot && (
-        <div className="fixed top-4 left-4 z-50 md:hidden">
+        <div className="fixed top-4 left-4 z-50 md:hidden z-10">
           <button
             onClick={() => setIsOpen(true)}
             className="p-2 rounded-md bg-neutral-800 hover:bg-neutral-700"

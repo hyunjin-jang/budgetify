@@ -10,9 +10,9 @@ import { Input } from "~/common/components/ui/input";
 import z from "zod";
 import { makeSSRClient } from "~/supa-client";
 import { checkUsernameExists } from "../queries";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import type { Route } from "./+types/join-page";
 
 export const meta: MetaFunction = () => {
@@ -92,6 +92,7 @@ export default function JoinPage({ actionData }: Route.ComponentProps) {
   const navigation = useNavigation();
   const isSubmitted =
     navigation.state === "submitting" || navigation.state === "loading";
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (actionData && "signUpError" in actionData && actionData.signUpError) {
@@ -140,13 +141,28 @@ export default function JoinPage({ actionData }: Route.ComponentProps) {
               {actionData.formErrors.email?.join(", ")}
             </p>
           )}
-          <Input
-            id="password"
-            name="password"
-            required
-            type="password"
-            placeholder="비밀번호를 입력해주세요"
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              name="password"
+              required
+              type={showPassword ? "text" : "password"}
+              placeholder="비밀번호를 입력해주세요"
+              className="pr-10"
+            />
+            <button
+              type="button"
+              tabIndex={-1}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+              onClick={() => setShowPassword((v) => !v)}
+            >
+              {showPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
+            </button>
+          </div>
           {actionData && "formErrors" in actionData && (
             <p className="text-sm text-red-500">
               {actionData.formErrors.password?.join(", ")}

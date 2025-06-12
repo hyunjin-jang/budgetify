@@ -9,7 +9,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "./ui/navigation-menu";
-import { cn } from "~/lib/utils";
+import { cn, formatTimeAgo } from "~/lib/utils";
 import { LogOutIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import {
@@ -28,6 +28,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { useState } from "react";
 
 const menus = [
   {
@@ -61,22 +63,56 @@ const menus = [
   },
 ];
 
+const notificationTypeMap = {
+  budget: {
+    icon: <BellIcon className="size-4 text-primary" />,
+    iconBg: "bg-primary/10",
+  },
+  goal: {
+    icon: <BarChart3Icon className="size-4 text-green-500" />,
+    iconBg: "bg-green-500/10",
+  },
+  expense: {
+    icon: <SettingsIcon className="size-4 text-yellow-500" />,
+    iconBg: "bg-yellow-500/10",
+  },
+  etc: {
+    icon: <BellIcon className="size-4 text-muted-foreground" />,
+    iconBg: "bg-muted",
+  },
+};
+
+type Notification = {
+  id: string;
+  user_id: string | null;
+  type: string;
+  title: string;
+  description: string;
+  created_at: string;
+  read: boolean;
+};
+
 export default function Navigation({
   isRoot,
   isLoggedIn,
   hasNotifications,
   hasMessages,
+  notifications,
 }: {
   isRoot: boolean;
   isLoggedIn: boolean;
   hasNotifications: boolean;
   hasMessages: boolean;
+  notifications: Notification[];
 }) {
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
   return (
     <nav
       className="
       flex px-8 h-16 items-center justify-between fixed 
-      top-0 left-0 right-0 z-50 md:px-16
+      top-0 left-0 right-0 md:px-16 backdrop-blur-sm
+      bg-background/50 z-10
       "
     >
       <div className="flex items-center">
@@ -86,74 +122,107 @@ export default function Navigation({
           </Link>
         )}
         <Separator orientation="vertical" className="h-6 mx-4" />
-        <NavigationMenu>
-          {/* <NavigationMenuList>
-            {menus.map((menu) => (
-              <NavigationMenuItem key={menu.name}>
-                {menu.items ? (
-                  <>
-                    <Link to={menu.to}>
-                      <NavigationMenuTrigger>{menu.name}</NavigationMenuTrigger>
-                    </Link>
-                    <NavigationMenuContent>
-                      <ul className="grid w-[600px] font-light gap-3 p-4 grid-cols-2">
-                        {menu.items?.map((item) => (
-                          <NavigationMenuItem
-                            key={item.name}
-                            className={cn([
-                              "select-none rounded-md transition-colors focus:bg-accent  hover:bg-accent",
-                              item.to === "/products/promote" &&
-                                "col-span-2 bg-primary/10 hover:bg-primary/20 focus:bg-primary/20",
-                              item.to === "/jobs/submit" &&
-                                "col-span-2 bg-primary/10 hover:bg-primary/20 focus:bg-primary/20",
-                            ])}
-                          >
-                            <NavigationMenuLink asChild>
-                              <Link
-                                className="p-3 space-y-1 block leading-none no-underline outline-none"
-                                to={item.to}
-                              >
-                                <span className="text-sm font-medium leading-none">
-                                  {item.name}
-                                </span>
-                                <p className="text-sm leading-snug text-muted-foreground">
-                                  {item.description}
-                                </p>
-                              </Link>
-                            </NavigationMenuLink>
-                          </NavigationMenuItem>
-                        ))}
-                      </ul>
-                    </NavigationMenuContent>
-                  </>
-                ) : (
-                  <Link className={navigationMenuTriggerStyle()} to={menu.to}>
-                    {menu.name}
-                  </Link>
-                )}
-              </NavigationMenuItem>
-            ))}
-          </NavigationMenuList> */}
-        </NavigationMenu>
+        <NavigationMenu></NavigationMenu>
       </div>
       {isLoggedIn ? (
         <div className="flex items-center gap-4">
-          {/* <Button size="icon" variant="ghost" asChild className="relative">
-            <Link to="/my/notifications">
-              <BellIcon className="size-4" />
-              {hasNotifications && (
-                <div className="absolute top-1.5 right-1.5 size-2 bg-red-500 rounded-full" />
-              )}
-            </Link>
-          </Button>
-          <Button size="icon" variant="ghost" asChild className="relative">
-            <Link to="/my/messages">
-              <MessageCircleIcon className="size-4" />
-              {hasMessages && (
-                <div className="absolute top-1.5 right-1.5 size-2 bg-red-500 rounded-full" />
-              )}
-            </Link>
-          </Button> */}
+          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+            <PopoverTrigger>
+              <div className="relative">
+                <BellIcon className="size-4" />
+                {notifications.length > 0 && (
+                  <div className="absolute bottom-3 left-3.5 size-2 bg-red-500 rounded-full" />
+                )}
+              </div>
+            </PopoverTrigger>
+            <PopoverContent align="end">
+              <div className="flex flex-col ">
+                {notifications.length > 0 ? (
+                  <>
+                    <div className="px-4 py-3 border-b">
+                      <h4 className="font-medium text-sm">알림</h4>
+                    </div>
+                    <div className="flex flex-col divide-y">
+                      {notifications.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center gap-3 p-6">
+                          <div className="rounded-full bg-muted p-3">
+                            <BellIcon className="size-6 text-muted-foreground" />
+                          </div>
+                          <div className="text-center">
+                            <p className="font-medium text-sm">
+                              알림이 없습니다
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              새로운 알림이 오면 여기에 표시됩니다
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        notifications.slice(0, 5).map((n) => {
+                          const typeInfo =
+                            notificationTypeMap[
+                              n.type as keyof typeof notificationTypeMap
+                            ] || notificationTypeMap.etc;
+                          return (
+                            <div
+                              key={n.id}
+                              className="flex gap-3 p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                            >
+                              <div
+                                className={`w-10 h-10 flex items-center justify-center rounded-full ${typeInfo.iconBg}`}
+                              >
+                                {typeInfo.icon}
+                              </div>
+                              <div className="flex-1 space-y-1">
+                                <p className="text-sm font-medium">{n.title}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {n.description}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {formatTimeAgo(n.created_at)}
+                                </p>
+                              </div>
+                              {!n.read && (
+                                <span
+                                  className="mt-1 ml-2 w-2 h-2 rounded-full bg-primary block"
+                                  title="읽지 않음"
+                                />
+                              )}
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                    <div className="p-2 border-t">
+                      <Link
+                        to="/notification"
+                        className="
+                          block w-full text-center text-sm 
+                          text-muted-foreground hover:text-foreground 
+                          transition-colors py-2
+                        "
+                        onClick={() => setPopoverOpen(false)}
+                      >
+                        모든 알림 보기
+                      </Link>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center gap-3 p-6">
+                    <div className="rounded-full bg-muted p-3">
+                      <BellIcon className="size-6 text-muted-foreground" />
+                    </div>
+                    <div className="text-center">
+                      <p className="font-medium text-sm">알림이 없습니다</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        새로운 알림이 오면 여기에 표시됩니다
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               {/* <Avatar>
