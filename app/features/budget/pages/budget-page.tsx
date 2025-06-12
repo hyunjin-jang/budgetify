@@ -91,15 +91,14 @@ export const action = async ({ request }: Route.ActionArgs) => {
       if (budget) {
         await updateBudget(client, {
           id: budget.id,
-          // level: data.level,
           settingMethod: data.settingMethod,
           totalAmount: data.totalAmount,
           fixedCost: data.fixedCost,
           income: data.income,
+          userId,
         });
       } else {
         await createBudget(client, {
-          // level: data.level,
           settingMethod: data.settingMethod,
           totalAmount: data.totalAmount,
           fixedCost: data.fixedCost,
@@ -143,17 +142,6 @@ export default function BudgetPage({ loaderData }: Route.ComponentProps) {
   );
   const [selectedMonthly, setSelectedMonthly] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  // const budgetLevel = useMemo(() => {
-  //   switch (budget?.level) {
-  //     case "basic":
-  //       return "초급";
-  //     case "intermediate":
-  //       return "중급";
-  //     case "advanced":
-  //       return "고급";
-  //   }
-  // }, [budget?.level]);
 
   const budgetSettingMethod = useMemo(() => {
     switch (budget?.setting_method) {
@@ -274,7 +262,7 @@ export default function BudgetPage({ loaderData }: Route.ComponentProps) {
           월간 예산 {!!budgetRecommendation ? "적용 내역" : "AI 추천"}
         </h2>
         {!!budgetRecommendation ? (
-          <div className="rounded-xl border bg-card p-6 shadow-sm max-w-xl mx-auto">
+          <div className="rounded-xl border bg-card p-6 shadow-sm mx-auto">
             <div className="font-bold text-lg mb-2">
               {budgetRecommendation.title}
             </div>
@@ -312,14 +300,6 @@ export default function BudgetPage({ loaderData }: Route.ComponentProps) {
                   {budgetRecommendation?.saving_ratio ?? 0}%
                 </div>
               </div>
-              {/* <Button
-                variant="outline"
-                onClick={() => {
-                  window.location.reload();
-                }}
-              >
-                추천 다시 받기
-              </Button> */}
             </div>
           </div>
         ) : isLoading ? (

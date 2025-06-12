@@ -17,6 +17,7 @@ export type Database = {
           id: string
           recommendation_id: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           amount: number
@@ -25,6 +26,7 @@ export type Database = {
           id?: string
           recommendation_id?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           amount?: number
@@ -33,6 +35,7 @@ export type Database = {
           id?: string
           recommendation_id?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -40,6 +43,13 @@ export type Database = {
             columns: ["recommendation_id"]
             isOneToOne: false
             referencedRelation: "budget_recommendations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_allocations_user_id_profiles_id_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -52,6 +62,7 @@ export type Database = {
           id: string
           title: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           amount: number
@@ -60,6 +71,7 @@ export type Database = {
           id?: string
           title: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           amount?: number
@@ -68,6 +80,7 @@ export type Database = {
           id?: string
           title?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -75,6 +88,13 @@ export type Database = {
             columns: ["budget_id"]
             isOneToOne: false
             referencedRelation: "budgets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_fixed_expenses_user_id_profiles_id_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -87,6 +107,7 @@ export type Database = {
           id: string
           title: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           amount: number
@@ -95,6 +116,7 @@ export type Database = {
           id?: string
           title: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           amount?: number
@@ -103,6 +125,7 @@ export type Database = {
           id?: string
           title?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -110,6 +133,13 @@ export type Database = {
             columns: ["budget_id"]
             isOneToOne: false
             referencedRelation: "budgets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_incomes_user_id_profiles_id_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -327,6 +357,44 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          read: boolean
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          read?: boolean
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          read?: boolean
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_profiles_id_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar: string | null
@@ -365,8 +433,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      budget_level: "basic" | "intermediate" | "advanced"
       goal_status: "scheduled" | "in_progress" | "completed" | "failed"
+      notification_type: "budget" | "goal" | "expense" | "etc"
       role: "admin" | "user"
       setting_method: "amount" | "income_based"
     }
@@ -484,8 +552,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      budget_level: ["basic", "intermediate", "advanced"],
       goal_status: ["scheduled", "in_progress", "completed", "failed"],
+      notification_type: ["budget", "goal", "expense", "etc"],
       role: ["admin", "user"],
       setting_method: ["amount", "income_based"],
     },

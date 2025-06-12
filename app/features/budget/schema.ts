@@ -1,12 +1,6 @@
 import { bigint, integer, numeric, pgEnum, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
 import { profiles } from "../settings/schema";
 
-export const budgetLevels = pgEnum("budget_level", [
-  "basic",
-  "intermediate",
-  "advanced",
-]);
-
 export const settingMethods = pgEnum("setting_method", [
   "amount",
   "income_based",
@@ -15,7 +9,6 @@ export const settingMethods = pgEnum("setting_method", [
 export const budgets = pgTable("budgets", {
   id: uuid().primaryKey().defaultRandom(),
   setting_method: settingMethods().notNull(),
-  // level: budgetLevels().notNull(),
   total_amount: bigint({ mode: "number" }).notNull(),
   user_id: uuid().references(() => profiles.id, { onDelete: "cascade" }),
   date: timestamp().notNull().defaultNow(),
@@ -28,6 +21,7 @@ export const budgetIncomes = pgTable("budget_incomes", {
   budget_id: uuid().references(() => budgets.id, { onDelete: "cascade" }),
   title: text().notNull(),
   amount: bigint({ mode: "number" }).notNull(),
+  user_id: uuid().references(() => profiles.id, { onDelete: "cascade" }),
   created_at: timestamp().notNull().defaultNow(),
   updated_at: timestamp().notNull().defaultNow(),
 });
@@ -37,6 +31,7 @@ export const budgetFixedExpenses = pgTable("budget_fixed_expenses", {
   budget_id: uuid().references(() => budgets.id, { onDelete: "cascade" }),
   title: text().notNull(),
   amount: bigint({ mode: "number" }).notNull(),
+  user_id: uuid().references(() => profiles.id, { onDelete: "cascade" }),
   created_at: timestamp().notNull().defaultNow(),
   updated_at: timestamp().notNull().defaultNow(),
 });
@@ -58,6 +53,7 @@ export const budgetAllocations = pgTable("budget_allocations", {
   recommendation_id: uuid().references(() => budgetRecommendations.id, { onDelete: "cascade" }),
   category: text().notNull(),
   amount: bigint({ mode: "number" }).notNull(),
+  user_id: uuid().references(() => profiles.id, { onDelete: "cascade" }),
   created_at: timestamp().notNull().defaultNow(),
   updated_at: timestamp().notNull().defaultNow(),
 });

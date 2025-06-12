@@ -12,7 +12,7 @@ import { StepIndicator } from "./StepIndicator";
 import { Form } from "react-router";
 import z from "zod";
 
-type Step = "init" | "income" | "amount" | "level" | "confirm";
+type Step = "init" | "income" | "amount" | "confirm";
 
 type Props = {
   isBudgetSetting: boolean;
@@ -21,8 +21,7 @@ type Props = {
 
 export const formSchema = z.object({
   settingMethod: z.enum(["amount", "income_based"]),
-  totalAmount: z.number().min(10000, "예산은 10,000원 이상이어야 합니다."),
-  // level: z.enum(["basic", "intermediate", "advanced"]),
+  totalAmount: z.number().min(0, "예산은 0원 이상이어야 합니다."),
   fixedCost: z
     .array(
       z.object({
@@ -43,7 +42,6 @@ export const formSchema = z.object({
 
 export function BudgetSetting({ isBudgetSetting, closeModal }: Props) {
   const [activeStep, setActiveStep] = useState<Step>("init");
-  const [selectedLevel, setSelectedLevel] = useState<string>("");
   const [settingMethod, setSettingMethod] = useState<string>("amount");
   const [totalAmount, setTotalAmount] = useState<string>("");
   const [fixedCostValues, setFixedCostValues] = useState<
@@ -112,7 +110,6 @@ export function BudgetSetting({ isBudgetSetting, closeModal }: Props) {
       open={isBudgetSetting}
       onOpenChange={() => {
         setActiveStep("init");
-        setSelectedLevel("");
         setSettingMethod("amount");
         setTotalAmount("");
         setFixedCostValues([{ amount: "", source: "" }]);
@@ -129,7 +126,6 @@ export function BudgetSetting({ isBudgetSetting, closeModal }: Props) {
           <Form method="post" onSubmit={handleSubmit}>
             <input type="hidden" name="action" value="create" />
             <input type="hidden" name="settingMethod" value={settingMethod} />
-            <input type="hidden" name="level" value={selectedLevel} />
 
             <Stepper
               className="pt-6"
@@ -386,41 +382,6 @@ export function BudgetSetting({ isBudgetSetting, closeModal }: Props) {
                         뒤로
                       </Button>
                     </div>
-                  </div>
-                ),
-
-                level: (
-                  <div className="flex flex-col gap-4">
-                    <Button
-                      variant="outline"
-                      type="button"
-                      onClick={() => {
-                        setSelectedLevel("basic");
-                        setActiveStep("confirm");
-                      }}
-                    >
-                      🟢 초심자
-                    </Button>
-                    <Button
-                      variant="outline"
-                      type="button"
-                      onClick={() => {
-                        setSelectedLevel("intermediate");
-                        setActiveStep("confirm");
-                      }}
-                    >
-                      🟡 중급자
-                    </Button>
-                    <Button
-                      variant="outline"
-                      type="button"
-                      onClick={() => {
-                        setSelectedLevel("advanced");
-                        setActiveStep("confirm");
-                      }}
-                    >
-                      🔴 고급자
-                    </Button>
                   </div>
                 ),
 

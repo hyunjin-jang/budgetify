@@ -4,6 +4,10 @@ export const monthlyBudgetPrompt = (
   fixedExpenses: any,
   selectedTab: string
 ) => `
+    너는 예산을 관리하는 프로야.  
+    목표는 사람들이 예산을 관리하기 쉽도록 예산 관리 방법을 제시하는 거야.
+    예산은 최대한 꼼꼼하고 세세하게 분배해야 해.
+
     다음 예산 정보를 바탕으로 **월별 예산 분배**를 3가지 방식으로 추천해주세요.
 
     ❗️주의사항:
