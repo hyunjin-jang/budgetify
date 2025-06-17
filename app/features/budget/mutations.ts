@@ -25,6 +25,7 @@ export const createBudget = async (
         budget_id: data?.id,
         amount: expense.amount,
         title: expense.source,
+        user_id: budget.userId,
       })));
   }
 
@@ -35,6 +36,7 @@ export const createBudget = async (
         budget_id: data?.id,
         amount: income.amount,
         title: income.source,
+        user_id: budget.userId,
       })));
   }
 
