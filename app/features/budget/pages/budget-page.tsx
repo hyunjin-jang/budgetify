@@ -159,7 +159,7 @@ export default function BudgetPage({ loaderData }: Route.ComponentProps) {
     (fixedExpenses?.reduce((sum, item) => sum + item.amount, 0) ?? 0);
 
   useEffect(() => {
-    if (!budgetRecommendation) {
+    if (!budgetRecommendation && budget) {
       setIsLoading(true);
       (async () => {
         const monthlyResponse = await ai.models.generateContent({
@@ -180,7 +180,7 @@ export default function BudgetPage({ loaderData }: Route.ComponentProps) {
         setIsLoading(false);
       })();
     }
-  }, [budgetRecommendation]);
+  }, [budgetRecommendation, budget]);
 
   return (
     <div>
@@ -194,9 +194,9 @@ export default function BudgetPage({ loaderData }: Route.ComponentProps) {
               {/* • {budgetLevel} 수준 */}
             </p>
           </div>
-          <Button onClick={() => setIsBudgetSetting(true)} size="lg">
+          {/* <Button onClick={() => setIsBudgetSetting(true)} size="lg">
             {budget ? "예산 설정 변경" : "예산 설정"}
-          </Button>
+          </Button> */}
         </div>
 
         {/* 메인 컨텐츠 */}
@@ -205,7 +205,7 @@ export default function BudgetPage({ loaderData }: Route.ComponentProps) {
           <div className="col-span-1 md:col-span-2 rounded-xl border bg-card p-6 shadow-sm">
             <h3 className="text-lg font-semibold mb-2">총 예산</h3>
             <p className="text-3xl font-bold">
-              {budget?.total_amount.toLocaleString()}원
+              {budget?.total_amount.toLocaleString() ?? 0}원
             </p>
           </div>
 
@@ -213,17 +213,25 @@ export default function BudgetPage({ loaderData }: Route.ComponentProps) {
           <div className="rounded-xl border bg-card p-6 shadow-sm">
             <h3 className="text-lg font-semibold mb-4">고정 비용</h3>
             <div className="space-y-3">
-              {fixedExpenses?.map((expense) => (
-                <div
-                  key={expense.id}
-                  className="flex justify-between items-center py-2 border-b last:border-0"
-                >
-                  <span className="text-muted-foreground">{expense.title}</span>
-                  <span className="font-medium text-red-600">
-                    {expense.amount.toLocaleString()}원
-                  </span>
-                </div>
-              ))}
+              {fixedExpenses && fixedExpenses.length > 0 ? (
+                fixedExpenses?.map((expense) => (
+                  <div
+                    key={expense.id}
+                    className="flex justify-between items-center py-2 border-b last:border-0"
+                  >
+                    <span className="text-muted-foreground">
+                      {expense.title}
+                    </span>
+                    <span className="font-medium">
+                      {expense.amount.toLocaleString()}원
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted-foreground text-sm">
+                  등록된 고정 비용이 없습니다.
+                </p>
+              )}
             </div>
           </div>
 
@@ -240,7 +248,7 @@ export default function BudgetPage({ loaderData }: Route.ComponentProps) {
                     <span className="text-muted-foreground">
                       {income.title}
                     </span>
-                    <span className="font-medium text-green-600">
+                    <span className="font-medium">
                       {income.amount.toLocaleString()}원
                     </span>
                   </div>
@@ -261,7 +269,27 @@ export default function BudgetPage({ loaderData }: Route.ComponentProps) {
           <Sparkles className="w-6 h-6 text-blue-400" />
           월간 예산 {!!budgetRecommendation ? "적용 내역" : "AI 추천"}
         </h2>
-        {!!budgetRecommendation ? (
+        {!budget ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <div className="text-center space-y-4">
+              <Sparkles className="w-16 h-16 text-blue-400 mx-auto" />
+              <h3 className="text-xl font-semibold text-white">
+                예산을 설정하면 AI 추천이 나옵니다
+              </h3>
+              <p className="text-gray-500 max-w-md">
+                먼저 예산을 설정해주세요. 설정한 예산을 바탕으로 AI가 맞춤형
+                예산 추천을 제공해드립니다.
+              </p>
+              <Button
+                onClick={() => setIsBudgetSetting(true)}
+                size="lg"
+                className="mt-4"
+              >
+                예산 설정하기
+              </Button>
+            </div>
+          </div>
+        ) : !!budgetRecommendation ? (
           <div className="rounded-xl border bg-card p-6 shadow-sm mx-auto">
             <div className="font-bold text-lg mb-2">
               {budgetRecommendation.title}
