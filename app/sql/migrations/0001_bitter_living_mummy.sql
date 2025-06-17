@@ -1,2 +1,0 @@
-CREATE TYPE "public"."notification_type" AS ENUM('budget', 'goal', 'expense', 'etc');--> statement-breakpoint
-ALTER TABLE "notifications" ALTER COLUMN "type" SET DATA TYPE "public"."notification_type" USING "type"::"public"."notification_type";
