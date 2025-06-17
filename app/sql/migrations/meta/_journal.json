@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1749714490530,
-      "tag": "0000_first_warlock",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1749717743787,
-      "tag": "0001_bitter_living_mummy",
+      "when": 1750152969266,
+      "tag": "0000_silent_franklin_storm",
       "breakpoints": true
     }
   ]

@@ -1,5 +1,7 @@
-import { boolean, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, pgEnum, pgPolicy, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { profiles } from "../settings/schema";
+import { authenticatedRole, authUid } from "drizzle-orm/supabase";
+import { sql } from "drizzle-orm";
 
 // 알림 타입(아이콘, 색상 등 프론트에서 매핑)
 export const notificationType = pgEnum("notification_type", [
@@ -17,4 +19,17 @@ export const notifications = pgTable("notifications", {
   description: text().notNull(),
   read: boolean().notNull().default(false),
   created_at: timestamp().notNull().defaultNow(),
-});
+}, (table) => [
+  pgPolicy("notification-insert-policy", {
+    for: "insert",
+    to: authenticatedRole,
+    as: "permissive",
+    withCheck: sql`${authUid} = ${table.user_id}`,
+  }),
+  pgPolicy("notification-select-policy", {
+    for: "select",
+    to: authenticatedRole,
+    as: "permissive",
+    using: sql`${authUid} = ${table.user_id}`,
+  }),
+]);

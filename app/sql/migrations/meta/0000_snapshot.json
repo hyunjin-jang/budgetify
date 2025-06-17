@@ -1,5 +1,5 @@
 {
-  "id": "618bbdf9-ce61-4bee-892f-6bdd335e33eb",
+  "id": "aa45977d-135c-4168-b52b-8c32db95f4b4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -694,7 +694,8 @@
         },
         "type": {
           "name": "type",
-          "type": "text",
+          "type": "notification_type",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -743,7 +744,26 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
+      "policies": {
+        "notification-insert-policy": {
+          "name": "notification-insert-policy",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid()) = \"notifications\".\"user_id\""
+        },
+        "notification-select-policy": {
+          "name": "notification-select-policy",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"notifications\".\"user_id\""
+        }
+      },
       "checkConstraints": {},
       "isRLSEnabled": false
     },
@@ -847,6 +867,16 @@
         "in_progress",
         "completed",
         "failed"
+      ]
+    },
+    "public.notification_type": {
+      "name": "notification_type",
+      "schema": "public",
+      "values": [
+        "budget",
+        "goal",
+        "expense",
+        "etc"
       ]
     },
     "public.role": {
