@@ -25,11 +25,14 @@ export const getExpenseCategories = async (
   const { data, error } = await client
     .from("expense_categories")
     .select("id, name")
-    .eq("user_id", userId);
+    .or(`user_id.eq.${userId},user_id.is.null`);
 
   if (error) {
+    console.log("🚀 ~ error:", error)
     throw error;
   }
+  console.log("🚀 ~ data:", data)
+
   return data;
 };
 
