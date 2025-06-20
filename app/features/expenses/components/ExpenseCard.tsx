@@ -1,13 +1,10 @@
 import { TrashIcon } from "lucide-react";
 import { Form } from "react-router";
 import IconButton from "~/common/components/iconButton";
+import type { Database } from "database.types";
 
-type Expense = {
-  id: string;
-  description: string;
-  amount: number;
-  date: string;
-  category: Record<string, string> | null;
+type Expense = Database["public"]["Tables"]["expenses"]["Row"] & {
+  category: Database["public"]["Tables"]["expense_categories"]["Row"] | null;
 };
 
 type Props = {
