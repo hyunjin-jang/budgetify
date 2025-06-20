@@ -112,6 +112,10 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
+    if (error.status === 302 || error.status === 301 || error.status === 307 || error.status === 308) {
+      return null;
+    }
+    
     message = error.status === 404 ? "404" : "Error";
     details =
       error.status === 404

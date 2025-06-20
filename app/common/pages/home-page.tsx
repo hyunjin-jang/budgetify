@@ -3,7 +3,6 @@ import { Button } from "~/common/components/ui/button";
 import { BorderBeam } from "../components/magicui/border-beam";
 import type { Route } from "./+types/home-page";
 import { makeSSRClient } from "~/supa-client";
-import { getLoggedIsUserId } from "~/features/settings/queries";
 
 export const meta: MetaFunction = () => {
   return [
@@ -46,9 +45,9 @@ const features = [
 ];
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const { client } = makeSSRClient(request);
-  const userId = await getLoggedIsUserId(client);
-  return { isLoggedIn: !!userId };
+  const { client } = await makeSSRClient(request);
+  const { data: { user } } = await client.auth.getUser();
+  return { isLoggedIn: !!user };
 };
 
 export default function HomePage({ loaderData }: Route.ComponentProps) {
