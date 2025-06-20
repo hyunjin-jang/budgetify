@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import type { MetaFunction } from "react-router";
+import { useFetcher } from "react-router";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import Calendar from "~/common/components/calendar";
 import {
@@ -24,6 +25,7 @@ import type { Route } from "./+types/dashboard-page";
 import { makeSSRClient } from "~/supa-client";
 import { getLoggedIsUserId } from "~/features/settings/queries";
 import { Button } from "~/common/components/ui/button";
+import { Skeleton } from "~/common/components/ui/skeleton";
 import {
   getBudget,
   getBudgetMonthlyTotal,
@@ -41,26 +43,20 @@ export const meta: MetaFunction = () => {
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { client } = await makeSSRClient(request);
   const userId = await getLoggedIsUserId(client);
-  const budget = await getBudget(client, userId, new Date());
-  const budgetMonthlyTotal = await getBudgetMonthlyTotal(
-    client,
-    userId,
-    new Date()
-  );
-  const budgetYearlyTotal = await getBudgetYearlyTotal(
-    client,
-    userId,
-    new Date()
-  );
-
-  const expenses = await getExpensesByMonth(client, userId, new Date());
-  const expensesByYear = await getExpensesByYear(client, userId, new Date());
+  
+  // 필수 데이터만 로드 (현재 월의 데이터)
+  const [budget, expenses] = await Promise.all([
+    getBudget(client, userId, new Date()),
+    getExpensesByMonth(client, userId, new Date())
+  ]);
+  
   return {
     budget,
-    budgetYearlyTotal,
-    budgetMonthlyTotal,
     expenses,
-    expensesByYear,
+    // 추가 데이터는 클라이언트에서 로드
+    budgetMonthlyTotal: null,
+    budgetYearlyTotal: null,
+    expensesByYear: null,
   };
 };
 
@@ -78,26 +74,53 @@ const chartConfig = {
 export default function DashboardPage({ loaderData }: Route.ComponentProps) {
   const {
     budget,
-    budgetMonthlyTotal,
-    budgetYearlyTotal,
     expenses,
-    expensesByYear,
   } = loaderData;
+  
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const fetcher = useFetcher();
+  const [additionalData, setAdditionalData] = useState({
+    budgetMonthlyTotal: loaderData.budgetMonthlyTotal,
+    budgetYearlyTotal: loaderData.budgetYearlyTotal,
+    expensesByYear: loaderData.expensesByYear,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 추가 데이터 로드
+  useEffect(() => {
+    const loadAdditionalData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/dashboard?date=${selectedDate.toISOString()}`);
+        const data = await response.json();
+        setAdditionalData(data);
+      } catch (error) {
+        console.error("Failed to load additional data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadAdditionalData();
+  }, [selectedDate]);
 
   const chartMonthData = useMemo(() => {
+    if (!additionalData.budgetYearlyTotal || !additionalData.expensesByYear) {
+      return [];
+    }
+    
     const currentYear = format(selectedDate, "yyyy");
     const monthlyData = Array.from({ length: 12 }, (_, i) => {
       const month = i + 1;
       const monthKey = `${currentYear}-${month.toString().padStart(2, "0")}`;
 
       // 해당 월의 예산 합계
-      const budget = budgetYearlyTotal
+      const budget = additionalData.budgetYearlyTotal
         .filter((b) => b.date.startsWith(monthKey))
         .reduce((sum, b) => sum + (b.total_amount || 0), 0);
 
       // 해당 월의 지출 합계
-      const expense = expensesByYear
+      const expense = additionalData.expensesByYear
         .filter((e) => e.date.startsWith(monthKey))
         .reduce((sum, e) => sum + e.amount, 0);
 
@@ -109,7 +132,7 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
     });
 
     return monthlyData;
-  }, [budgetYearlyTotal, expensesByYear, selectedDate]);
+  }, [additionalData.budgetYearlyTotal, additionalData.expensesByYear, selectedDate]);
 
   const chartWeeklyData = useMemo(() => {
     const lastDayOfMonth = endOfMonth(selectedDate);
@@ -255,21 +278,31 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
             <p className="text-sm font-medium">지출</p>
           </div>
         </div>
-        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-          <BarChart accessibilityLayer data={chartMonthData}>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip content={<ChartTooltipContent />} />
-            <Bar dataKey="budget" fill="var(--color-budget)" radius={4} />
-            <Bar dataKey="expense" fill="var(--color-expense)" radius={4} />
-          </BarChart>
-        </ChartContainer>
+        {isLoading ? (
+          <div className="min-h-[200px] w-full flex items-center justify-center">
+            <div className="space-y-2 w-full">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          </div>
+        ) : (
+          <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+            <BarChart accessibilityLayer data={chartMonthData}>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="month"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+                tickFormatter={(value) => value.slice(0, 3)}
+              />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Bar dataKey="budget" fill="var(--color-budget)" radius={4} />
+              <Bar dataKey="expense" fill="var(--color-expense)" radius={4} />
+            </BarChart>
+          </ChartContainer>
+        )}
       </div>
 
       <div className="col-span-2 md:col-span-1">
@@ -284,22 +317,32 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
             <p className="text-sm font-medium">지출</p>
           </div>
         </div>
-        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-          <BarChart accessibilityLayer data={chartWeeklyData}>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="day"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-              interval={0}
-            />
-            <ChartTooltip content={<ChartTooltipContent />} />
-            <Bar dataKey="budget" fill="var(--color-budget)" radius={4} />
-            <Bar dataKey="expense" fill="var(--color-expense)" radius={4} />
-          </BarChart>
-        </ChartContainer>
+        {isLoading ? (
+          <div className="min-h-[200px] w-full flex items-center justify-center">
+            <div className="space-y-2 w-full">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          </div>
+        ) : (
+          <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+            <BarChart accessibilityLayer data={chartWeeklyData}>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="day"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+                tickFormatter={(value) => value.slice(0, 3)}
+                interval={0}
+              />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Bar dataKey="budget" fill="var(--color-budget)" radius={4} />
+              <Bar dataKey="expense" fill="var(--color-expense)" radius={4} />
+            </BarChart>
+          </ChartContainer>
+        )}
       </div>
 
       <div className="col-span-2 flex flex-col gap-4">

@@ -7,6 +7,7 @@ export default [
   ...prefix("api", [
     route("/notification", "api/notification-api.tsx"),
     route("/welcome", "api/welcome-api.tsx"),
+    route("/dashboard", "api/dashboard-api.tsx"),
   ]),
 
   ...prefix("auth", [
