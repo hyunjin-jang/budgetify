@@ -1,7 +1,7 @@
 import { Link, type MetaFunction } from "react-router";
 import { Button } from "~/common/components/ui/button";
 import { BorderBeam } from "../components/magicui/border-beam";
-import type { Route } from "./+types/home-page";
+import type { Route } from "../../.react-router/types/app/+types/home-page";
 import { makeSSRClient } from "~/supa-client";
 import { getLoggedIsUserId } from "~/features/settings/queries";
 

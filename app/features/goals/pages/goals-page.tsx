@@ -3,7 +3,7 @@ import { Button } from "~/common/components/ui/button";
 import { formSchema, GoalSetting } from "../components/GoalSetting";
 import { type MetaFunction } from "react-router";
 import { getGoals } from "../queries";
-import type { Route } from "./+types/goals-page";
+import type { Route } from "../../../.react-router/types/app/+types/goals-page";
 import { GoalCard } from "../components/GoalCard";
 import { makeSSRClient } from "~/supa-client";
 import { getLoggedIsUserId } from "~/features/settings/queries";

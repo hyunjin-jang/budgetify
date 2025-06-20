@@ -13,7 +13,7 @@ import { checkUsernameExists } from "../queries";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Eye, EyeOff } from "lucide-react";
-import type { Route } from "./+types/join-page";
+import type { Route } from "../../../.react-router/types/app/+types/join-page";
 
 export const meta: MetaFunction = () => {
   return [

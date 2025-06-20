@@ -6,7 +6,7 @@ import { format, addMonths, subMonths } from "date-fns";
 import { ko } from "date-fns/locale";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { getExpenseCategories, getExpenses } from "../queries";
-import type { Route } from "./+types/expenses-page";
+import type { Route } from "../../../.react-router/types/app/+types/expenses-page";
 import { ExpenseCard } from "../components/ExpenseCard";
 import { makeSSRClient } from "~/supa-client";
 import { getLoggedIsUserId } from "~/features/settings/queries";

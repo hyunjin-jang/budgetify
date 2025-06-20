@@ -21,7 +21,7 @@ import {
   type ChartConfig,
 } from "~/common/components/ui/chart";
 import { BellIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import type { Route } from "./+types/dashboard-page";
+import type { Route } from "../../.react-router/types/app/+types/dashboard-page";
 import { makeSSRClient } from "~/supa-client";
 import { getLoggedIsUserId } from "~/features/settings/queries";
 import { Button } from "~/common/components/ui/button";

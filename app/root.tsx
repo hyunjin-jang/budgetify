@@ -7,8 +7,8 @@ import {
   ScrollRestoration,
   useLocation,
 } from "react-router";
-
-import type { Route } from "./+types/root";
+import type { LinksFunction } from "react-router";
+import type { Route } from "../.react-router/types/app/+types/root";
 import "./app.css";
 import Navigation from "./common/components/navigation";
 import { Toaster } from "./common/components/ui/sonner";
@@ -17,7 +17,8 @@ import { makeSSRClient } from "./supa-client";
 import { getUserById } from "./features/settings/queries";
 import { getNotifications } from "./features/notification/queries";
 
-export const links: Route.LinksFunction = () => [
+export const links: LinksFunction = () => [
+  { rel: "icon", href: "/favicon.ico" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",

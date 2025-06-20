@@ -5,5 +5,8 @@ export default {
   // Config options...
   // Server-side render by default, to enable SPA mode set this to `false`
   ssr: true,
-  presets: [vercelPreset()]
+  presets: [vercelPreset()],
+  // Add build configuration for better Vercel compatibility
+  buildDirectory: "build",
+  serverBuildFile: "server/index.js",
 } satisfies Config;

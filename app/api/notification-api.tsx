@@ -1,5 +1,5 @@
 import { adminClient } from "~/supa-client";
-import type { Route } from "./+types/notification-api";
+import type { Route } from "../../.react-router/types/app/api/+types/notification-api";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   if (request.method !== "POST") {

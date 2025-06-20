@@ -1,5 +1,5 @@
 import { BellIcon, BarChart3Icon, SettingsIcon } from "lucide-react";
-import type { Route } from "./+types/notifications-page";
+import type { Route } from "../../../.react-router/types/app/+types/notifications-page";
 import { makeSSRClient } from "~/supa-client";
 import { getLoggedIsUserId } from "~/features/settings/queries";
 import { getNotifications } from "../queries";

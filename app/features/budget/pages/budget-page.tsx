@@ -9,7 +9,7 @@ import {
   getFixedExpenses,
   getIncomes,
 } from "../queries";
-import type { Route } from "./+types/budget-page";
+import type { Route } from "../../../.react-router/types/app/+types/budget-page";
 import { makeSSRClient } from "~/supa-client";
 import { getLoggedIsUserId } from "~/features/settings/queries";
 import {

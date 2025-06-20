@@ -1,7 +1,7 @@
 import { Button } from "~/common/components/ui/button";
 import { Form, redirect, useNavigation, type MetaFunction } from "react-router";
 import { Input } from "~/common/components/ui/input";
-import type { Route } from "./+types/login-page";
+import type { Route } from "../../../.react-router/types/app/+types/login-page";
 import { Loader2 } from "lucide-react";
 import { z } from "zod";
 import { makeSSRClient } from "~/supa-client";
