@@ -43,13 +43,13 @@ export const meta: MetaFunction = () => {
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { client } = await makeSSRClient(request);
   const userId = await getLoggedIsUserId(client);
-  
+
   // 필수 데이터만 로드 (현재 월의 데이터)
   const [budget, expenses] = await Promise.all([
     getBudget(client, userId, new Date()),
-    getExpensesByMonth(client, userId, new Date())
+    getExpensesByMonth(client, userId, new Date()),
   ]);
-  
+
   return {
     budget,
     expenses,
@@ -72,11 +72,8 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function DashboardPage({ loaderData }: Route.ComponentProps) {
-  const {
-    budget,
-    expenses,
-  } = loaderData;
-  
+  const { budget, expenses } = loaderData;
+
   const [selectedDate, setSelectedDate] = useState(new Date());
   const fetcher = useFetcher();
   const [additionalData, setAdditionalData] = useState({
@@ -91,7 +88,9 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
     const loadAdditionalData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/dashboard?date=${selectedDate.toISOString()}`);
+        const response = await fetch(
+          `/api/dashboard?date=${selectedDate.toISOString()}`
+        );
         const data = await response.json();
         setAdditionalData(data);
       } catch (error) {
@@ -100,7 +99,7 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
         setIsLoading(false);
       }
     };
-    
+
     loadAdditionalData();
   }, [selectedDate]);
 
@@ -108,21 +107,21 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
     if (!additionalData.budgetYearlyTotal || !additionalData.expensesByYear) {
       return [];
     }
-    
+
     const currentYear = format(selectedDate, "yyyy");
     const monthlyData = Array.from({ length: 12 }, (_, i) => {
       const month = i + 1;
       const monthKey = `${currentYear}-${month.toString().padStart(2, "0")}`;
 
       // 해당 월의 예산 합계
-      const budget = additionalData.budgetYearlyTotal
-        .filter((b) => b.date.startsWith(monthKey))
-        .reduce((sum, b) => sum + (b.total_amount || 0), 0);
+      const budget = (additionalData.budgetYearlyTotal as unknown as any[])
+        .filter((b: any) => b.date.startsWith(monthKey))
+        .reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0);
 
       // 해당 월의 지출 합계
-      const expense = additionalData.expensesByYear
-        .filter((e) => e.date.startsWith(monthKey))
-        .reduce((sum, e) => sum + e.amount, 0);
+      const expense = (additionalData.expensesByYear as unknown as any[])
+        .filter((e: any) => e.date.startsWith(monthKey))
+        .reduce((sum: number, e: any) => sum + e.amount, 0);
 
       return {
         month: `${month}월`,
@@ -132,7 +131,11 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
     });
 
     return monthlyData;
-  }, [additionalData.budgetYearlyTotal, additionalData.expensesByYear, selectedDate]);
+  }, [
+    additionalData.budgetYearlyTotal,
+    additionalData.expensesByYear,
+    selectedDate,
+  ]);
 
   const chartWeeklyData = useMemo(() => {
     const lastDayOfMonth = endOfMonth(selectedDate);
