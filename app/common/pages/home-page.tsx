@@ -46,7 +46,9 @@ const features = [
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { client } = await makeSSRClient(request);
-  const { data: { user } } = await client.auth.getUser();
+  const {
+    data: { user },
+  } = await client.auth.getUser();
   return { isLoggedIn: !!user };
 };
 
