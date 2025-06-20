@@ -17,10 +17,16 @@ export const getUserById = async (
   return data;
 };
 
-export const getLoggedIsUserId = async (client: SupabaseClient) => {
+export const getLoggedIsUserId = async (
+  client: SupabaseClient,
+  { requireAuth = true }: { requireAuth?: boolean } = {}
+) => {
   const { data, error } = await client.auth.getUser();
   if (error || data.user === null) {
-    throw redirect("/auth/login");
+    if (requireAuth) {
+      throw redirect("/auth/login");
+    }
+    return null;
   }
   return data.user.id;
 };
