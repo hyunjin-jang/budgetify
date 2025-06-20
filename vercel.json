@@ -3,11 +3,6 @@
   "outputDirectory": "build",
   "framework": "react-router",
   "installCommand": "npm install",
-  "functions": {
-    "build/server/index.js": {
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
