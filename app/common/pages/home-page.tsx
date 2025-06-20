@@ -71,9 +71,9 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
           <Button size="lg" variant="default" asChild>
             <Link to={isLoggedIn ? "/expenses" : "/auth/login"}>시작하기</Link>
           </Button>
-          <Button size="lg" variant="outline" asChild>
+          {/* <Button size="lg" variant="outline" asChild>
             <Link to="/about">자세히 알아보기</Link>
-          </Button>
+          </Button> */}
         </div>
       </section>
 
@@ -102,13 +102,144 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
       </section>
 
       <section className="text-center py-20 px-4">
-        <h2 className="text-xl font-bold text-muted-foreground mb-4">
-          어떻게 활용할 수 있나요?
-        </h2>
-        <p className="text-sm text-muted-foreground max-w-xl mx-auto">
-          예산을 설정하고 지출을 기록하면 자동으로 통계가 생성됩니다. 매달
-          목표에 따라 소비 패턴을 분석하고 더 나은 재정 생활을 만들어보세요.
-        </p>
+        <h2 className="text-2xl font-bold mb-8">자주 묻는 질문</h2>
+
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* 서비스 소개 */}
+          <div className="text-left">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              🔰 서비스 소개
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <p className="font-medium text-sm mb-1">
+                  Q. 머니도비는 어떤 앱인가요?
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  A. 머니도비는 예산과 지출을 손쉽게 관리하고, 재무 목표를
+                  설정할 수 있도록 도와주는 스마트 가계부 앱입니다. 직관적인
+                  UI와 다양한 분석 기능으로 더 나은 소비 습관을 형성할 수 있게
+                  해줍니다.
+                </p>
+              </div>
+              <div>
+                <p className="font-medium text-sm mb-1">
+                  Q. '머니도비'라는 이름의 뜻은 무엇인가요?
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  A. 해리포터의 '도비' 짤에서 영감을 받아, 지출 스트레스에서의
+                  해방을 상징합니다.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 예산 및 지출 관리 */}
+          <div className="text-left">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              📊 예산 및 지출 관리
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <p className="font-medium text-sm mb-1">
+                  Q. 예산은 어떻게 설정하나요?
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  A. 월별 예산을 직접 입력하거나 자동 추천 기능을 통해 설정할 수
+                  있습니다. 고정지출과 가변지출을 구분해 관리할 수 있으며, 예산
+                  초과 시 알림도 받을 수 있습니다.
+                </p>
+              </div>
+              <div>
+                <p className="font-medium text-sm mb-1">
+                  Q. 지출 내역은 어떻게 추가하나요?
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  A. 카테고리, 금액, 날짜를 입력해 간단히 기록할 수 있습니다.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 목표와 분석 기능 */}
+          <div className="text-left">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              🎯 목표와 분석 기능
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <p className="font-medium text-sm mb-1">
+                  Q. 어떤 목표를 설정할 수 있나요?
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  A. 날짜와 금액 등을 자유롭게 설정 할 수 있습니다.
+                </p>
+              </div>
+              <div>
+                <p className="font-medium text-sm mb-1">
+                  Q. 리포트는 어떻게 제공되나요?
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  A. 월간 리포트, 카테고리별 분석, 예산 대비 지출 차트 등을 통해
+                  자신의 소비 패턴을 한눈에 확인할 수 있습니다.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 보안 및 개인정보 */}
+          <div className="text-left">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              🔐 보안 및 개인정보
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <p className="font-medium text-sm mb-1">
+                  Q. 제 데이터는 안전하게 보호되나요?
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  A. 네. 머니도비는 모든 사용자 데이터를 암호화하여 안전하게
+                  저장하며, 외부에 절대 공개되지 않습니다. 또한 정기적으로 보안
+                  점검을 실시하고 있습니다.
+                </p>
+              </div>
+              <div>
+                <p className="font-medium text-sm mb-1">
+                  Q. 로그인 정보는 어떻게 보호되나요?
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  A. 이메일 기반 인증과 함께, 추후 2단계 인증(2FA) 옵션도 지원
+                  예정입니다.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 계정 및 고객지원 */}
+          <div className="text-left">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              💬 계정 및 고객지원
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <p className="font-medium text-sm mb-1">Q. 앱은 무료인가요?</p>
+                <p className="text-sm text-muted-foreground">
+                  A. 대부분의 핵심 기능은 무료로 제공됩니다. 향후 프리미엄
+                  기능은 선택적 구독 형태로 제공될 예정입니다.
+                </p>
+              </div>
+              {/* <div>
+                <p className="font-medium text-sm mb-1">
+                  Q. 고객지원은 어떻게 받을 수 있나요?
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  A. 앱 내 고객센터 또는 support@moneydoby.com 으로 문의하시면
+                  빠르게 답변해드립니다.
+                </p>
+              </div> */}
+            </div>
+          </div>
+        </div>
       </section>
     </main>
   );
