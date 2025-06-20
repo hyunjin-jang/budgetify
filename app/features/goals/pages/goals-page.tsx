@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Button } from "~/common/components/ui/button";
 import { formSchema, GoalSetting } from "../components/GoalSetting";
 import { type MetaFunction } from "react-router";
@@ -9,7 +9,11 @@ import { makeSSRClient } from "~/supa-client";
 import { getLoggedIsUserId } from "~/features/settings/queries";
 import { createGoal, deleteGoal, updateGoalStatus } from "../mutations";
 import { toast } from "sonner";
-import { Form } from "react-router";
+import { Await, useLoaderData } from "react-router";
+import type { Database } from "database.types";
+
+// Goal 타입 정의
+type Goal = Database["public"]["Tables"]["goals"]["Row"];
 
 export const meta: MetaFunction = () => {
   return [{ title: "머니도비 적합 규모 구성" }];
@@ -18,8 +22,8 @@ export const meta: MetaFunction = () => {
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { client } = makeSSRClient(request);
   const userId = await getLoggedIsUserId(client);
-  const goals = await getGoals(client, userId);
-  return { goals };
+  const goalsPromise = getGoals(client, userId);
+  return { goals: goalsPromise };
 };
 
 export const action = async ({ request }: Route.ActionArgs) => {
@@ -77,22 +81,17 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
 type GoalStatus = "scheduled" | "in_progress" | "completed" | "failed";
 
-export default function GoalsPage({ loaderData }: Route.ComponentProps) {
-  const [openGoalSetting, setOpenGoalSetting] = useState(false);
+// 목표 목록을 렌더링하는 컴포넌트
+function GoalsList({ goals }: { goals: Goal[] }) {
   const [activeFilter, setActiveFilter] = useState<GoalStatus | "all">("all");
 
   const filteredGoals =
     activeFilter === "all"
-      ? loaderData.goals
-      : loaderData.goals.filter((goal) => goal.status === activeFilter);
+      ? goals
+      : goals.filter((goal) => goal.status === activeFilter);
 
   return (
     <>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">내 목표</h1>
-        <Button onClick={() => setOpenGoalSetting(true)}>목표 추가</Button>
-      </div>
-
       <div className="flex flex-wrap gap-2 mb-6">
         {[
           { key: "all", label: "전체" },
@@ -123,6 +122,49 @@ export default function GoalsPage({ loaderData }: Route.ComponentProps) {
           })}
         </div>
       )}
+    </>
+  );
+}
+
+// 로딩 상태 컴포넌트
+function GoalsLoading() {
+  return (
+    <div className="flex justify-center items-center h-64">
+      <div className="text-muted-foreground">목표를 불러오는 중...</div>
+    </div>
+  );
+}
+
+// 에러 상태 컴포넌트
+function GoalsError({ error }: { error: Error }) {
+  return (
+    <div className="flex justify-center items-center h-64">
+      <div className="text-destructive">
+        목표를 불러오는데 실패했습니다: {error.message}
+      </div>
+    </div>
+  );
+}
+
+export default function GoalsPage() {
+  const { goals } = useLoaderData() as { goals: Promise<Goal[]> };
+  const [openGoalSetting, setOpenGoalSetting] = useState(false);
+
+  return (
+    <>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">내 목표</h1>
+        <Button onClick={() => setOpenGoalSetting(true)}>목표 추가</Button>
+      </div>
+
+      <Suspense fallback={<GoalsLoading />}>
+        <Await
+          resolve={goals}
+          errorElement={<GoalsError error={new Error("목표 로딩 실패")} />}
+        >
+          {(resolvedGoals) => <GoalsList goals={resolvedGoals} />}
+        </Await>
+      </Suspense>
 
       <GoalSetting
         open={openGoalSetting}
