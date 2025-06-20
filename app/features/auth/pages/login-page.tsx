@@ -13,6 +13,18 @@ export const meta: MetaFunction = () => {
   return [{ title: "머니도비 로그인" }];
 };
 
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const { client } = await makeSSRClient(request);
+  const { data: { user } } = await client.auth.getUser();
+  
+  // 이미 로그인한 사용자는 대시보드로 리다이렉트
+  if (user) {
+    return redirect("/dashboard");
+  }
+  
+  return null;
+};
+
 const formSchema = z.object({
   email: z
     .string({
