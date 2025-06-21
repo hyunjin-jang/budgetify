@@ -44,14 +44,14 @@ export default function WelcomeUser({ username }: { username: string }) {
                 이제 더 스마트한 금융 관리를 시작해보세요.
               </Text>
 
-              {/* <Section className="text-center mt-[32px] mb-[32px]">
+              <Section className="text-center mt-[32px] mb-[32px]">
                 <Button
                   className="bg-[#2563eb] rounded-lg text-white text-[16px] px-[32px] py-[16px] font-semibold no-underline text-center"
                   href="https://moneydoby.com/dashboard"
                 >
                   대시보드로 이동하기
                 </Button>
-              </Section> */}
+              </Section>
 
               <Section className="mt-[32px]">
                 <Text className="text-[#4b5563] text-[16px] leading-[24px] text-center">
